@@ -9,6 +9,8 @@ interface Item {
   studentImage: string; 
   studentBirthDate: Date; 
   facultyName:string;
+  facultyId:string;
+
 }
 interface Faculty {
   facultyId: string;
@@ -73,6 +75,7 @@ const App: React.FC = () => {
   const [editingid, setEditingid] = useState('');
   const [deleteId, setDelete] = useState('');
   const [DataEditKhoa, setDataEditKhoa] = useState('');
+  // const [DataEditKhoaId, setDataEditKhoaId] = useState('');
   const [dataKH, setDataKH] = useState<Faculty[]>([]); 
   const [dataStudent, setDataStudent] = useState<Item[]>([]);
   const [dataUpdate, setdataUpdate] = React.useState({ Item:{} as Item})
@@ -139,7 +142,9 @@ const App: React.FC = () => {
     try {
       const row = (await form.validateFields()) as Item;
       row.studentId = id;
-      row.facultyName = DataEditKhoa;
+      row.facultyId = DataEditKhoa;
+      // row.facultyId = DataEditKhoaId;
+
       const newData = [...dataStudent];
       const index = newData.findIndex((item) => id === item.studentId);
       // id
@@ -173,6 +178,7 @@ const App: React.FC = () => {
   };
   const handleSelectChange = (newFacultyId: string) => { 
     setDataEditKhoa(newFacultyId);
+    // setDataEditKhoaId(newFacultyId.facultyId);
   };
  const dataColumns: ShowColumns[]  = [
     {
@@ -204,7 +210,7 @@ const App: React.FC = () => {
       return editableShow ? (
          <Select onChange={handleSelectChange}>
             {dataKH.map((p, index) => (
-              <Select.Option key={p.facultyId} value={p.facultyName}>
+              <Select.Option key={p.facultyId} value={p.facultyId}>
                 {p.facultyName}
               </Select.Option>
             ))}
