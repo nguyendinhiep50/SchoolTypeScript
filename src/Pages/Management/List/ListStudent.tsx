@@ -1,14 +1,19 @@
 import React, {useEffect,useState,ReactNode }  from 'react';
-import { Form, Input, InputNumber, Table,Typography,Popconfirm } from 'antd';
+import { Form, Input, InputNumber, Table,Typography,Popconfirm,Select } from 'antd';
 import axios from 'axios';  
 import { format } from 'date-fns';
 import Item from 'antd/es/list/Item'; 
 interface Item {
-  id: string; // Make sure you have a unique id for each item in the array
+  studentId: string; // Make sure you have a unique id for each item in the array
   studentName: string;
   studentImage: string; 
   studentBirthDate: Date; 
-  facultyId:string;
+  facultyName:string;
+}
+interface Faculty {
+  facultyId: string;
+  facultyName: string;
+  // Add other properties if applicable
 }
 interface EditableCellProps extends React.HTMLAttributes<HTMLElement> {
   editing: boolean;
@@ -56,7 +61,7 @@ const inputNode = inputType === 'number' ? <InputNumber /> : <Input />;
         >
           {inputNode}
         </Form.Item>
-      ) : (
+      ) : ( 
         children
       )}
     </td>
@@ -67,51 +72,60 @@ const App: React.FC = () => {
   const [form] = Form.useForm(); 
   const [editingid, setEditingid] = useState('');
   const [deleteId, setDelete] = useState('');
+  const [DataEditKhoa, setDataEditKhoa] = useState('');
+  const [dataKH, setDataKH] = useState<Faculty[]>([]); 
   const [dataStudent, setDataStudent] = useState<Item[]>([]);
   const [dataUpdate, setdataUpdate] = React.useState({ Item:{} as Item})
   useEffect(() => {
     const fetchData = async () => {
+      axios
+      .get("https://localhost:7232/api/Faculties")
+      .then((response) => {
+        setDataKH(response.data);
+      })
+      .catch((error) => {
+        console.error(error);
+      });
       try {
-        const response = await axios.get("https://localhost:7232/api/Students");
+        const response = await axios.get("https://localhost:7232/api/Students/TakeNameFaculty");
         console.log(response.data);
         const studentsData = response.data.map((student: any, index: number) => ({
-          id: student.StudentId,
+          studentId: student.studentId,
           studentName: student.studentName,
           studentImage: student.studentImage, 
           studentBirthDate: format(new Date(student.studentBirthDate), 'yyyy-MM-dd'),        
-          facultyId: student.facultyName,
+          facultyName: student.facultyName,
         }));
         setDataStudent(studentsData);
         console.log('Fetch data successful');
       } catch (error) {
-        console.error(error);
-        
+        console.error(error); 
       }
-    };
-
+    }; 
     fetchData();
   }, [dataUpdate]);
-  const isEditing = (record: Item) => record.id === editingid;
+  const isEditing = (record: Item) => record.studentId === editingid;
 
-  const edit = (record: Partial<Item> & { id:string }) => {
-    form.setFieldsValue({  studentName: 'hi bạn', studentEmail: '',studentPassword: '',studentAdress:'',studentDateCome:'',studentPhone:'',facultyId:'', ...record });
-    setEditingid(record.id);
+  const edit = (record: Partial<Item> & { studentId:string }) => {
+    console.log(record.studentId);
+    form.setFieldsValue({  studentName: '',studentImage :'',studentBirthDate :'' ,facultyName:'', ...record });
+    setEditingid(record.studentId);
   };
-  const handleDataChange = (newData: Item) => {
+  const handleDataChange = (newData: any) => {
     setdataUpdate(prevData => ({
       ...prevData,
       Item: newData
     }));
   };
-  const DeleteID = (record: Partial<Item> & { id:string }) => {
+  const DeleteID = (record: Partial<Item> & { studentId:string }) => {
     axios
         .delete(
-          "https://localhost:7232/api/Students/" +record.id
+          "https://localhost:7232/api/Students/" +record.studentId
         )
         .then((response) =>{ 
           alert("Đã xóa học sinh");
-          const newDataStudent = dataStudent.filter(item => item.id !== record.id);
-          setDataStudent(newDataStudent);
+          const newDataStudent = dataStudent.filter(item => item.studentId !== record.studentId);
+          handleDataChange(newDataStudent);
         })
         .catch((err) => console.log(err));
   };
@@ -124,13 +138,15 @@ const App: React.FC = () => {
   const save = async (id:string) => {
     try {
       const row = (await form.validateFields()) as Item;
-
+      row.studentId = id;
+      row.facultyName = DataEditKhoa;
       const newData = [...dataStudent];
-      const index = newData.findIndex((item) => id === item.id);
+      const index = newData.findIndex((item) => id === item.studentId);
       // id
       if (index > -1) {
-        const item = newData[index];
-        newData.splice(index, 1);
+        const item = newData[index]; 
+        console.log(row); 
+        newData.splice(index, 1,row);  
         setDataStudent(newData);
         setEditingid('');
         // xử lý cập nhật dữ liệu
@@ -141,8 +157,9 @@ const App: React.FC = () => {
             newData[index]
         )
         .then((response) => console.log(response))
-        .catch((err) => console.log(err));
-
+        .catch((err) => {console.log(err) 
+          console.log(newData[index])
+        });
         console.log(newData[index]);
       } else {
         newData.push(row);
@@ -150,8 +167,12 @@ const App: React.FC = () => {
         setEditingid('');
       }
     } catch (errInfo) {
+      setEditingid('');
       console.log('Validate Failed:', errInfo);
     }
+  };
+  const handleSelectChange = (newFacultyId: string) => { 
+    setDataEditKhoa(newFacultyId);
   };
  const dataColumns: ShowColumns[]  = [
     {
@@ -175,21 +196,36 @@ const App: React.FC = () => {
     },
     {
       title: 'Khoa',
-      dataIndex: 'facultyId',
+      dataIndex: 'facultyName',
       width: '8%',
-      editable: true, 
-
+      editable: false,  
+      render: (_: any, record: Item) => {
+      const editableShow = isEditing(record);
+      return editableShow ? (
+         <Select onChange={handleSelectChange}>
+            {dataKH.map((p, index) => (
+              <Select.Option key={p.facultyId} value={p.facultyName}>
+                {p.facultyName}
+              </Select.Option>
+            ))}
+          </Select>
+      ) : (
+        <>
+        <h1>{record.facultyName}</h1>
+        </>
+      );
+      },
     },
     {
       title: 'operation',
       dataIndex: 'operation',
       width: '8%',
-      editable: true, 
+      editable: false, 
       render: (_: any, record: Item) => {
-      const editable = isEditing(record);
-      return editable ? (
+      const editableShow = isEditing(record);
+      return editableShow ? (
         <span>
-          <Typography.Link onClick={() => save(record.id)} style={{ marginRight: 8 }}>
+          <Typography.Link onClick={() => save(record.studentId)} style={{ marginRight: 8 }}>
             Save
           </Typography.Link>
           <Popconfirm title="Sure to cancel?" onConfirm={cancel}>
@@ -209,7 +245,21 @@ const App: React.FC = () => {
       },
     }, 
   ];
-
+  const mergedColumns = dataColumns.map((col) => {
+    if (!col.editable) {
+      return col;
+    }
+    return { 
+      ...col,
+      onCell: (record: Item) => ({
+        record,
+        inputType: col.dataIndex === 'id' ? 'studentName' :"null",
+        dataIndex: col.dataIndex,
+        title: col.title,
+        editing: isEditing(record),
+      }),
+    };
+  });
   return (
     <Form form={form} component={false}  style={{width:"86%"}}> 
       <Table<Item>
@@ -225,7 +275,7 @@ const App: React.FC = () => {
           onChange: cancel,
         }}
       >
-      {dataColumns.map((column:ShowColumns, demcolumn) => {
+      {mergedColumns.map((column:ShowColumns, demcolumn) => {
         const { dataIndex, title, width, ...restColumnProps } = column;
        
 

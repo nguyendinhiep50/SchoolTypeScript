@@ -6,14 +6,12 @@ import {
   Form,
   Input,
   Upload,
-  Col, Row,Layout,theme
+  Layout,theme
 } from 'antd';
-import moment from 'moment';
 import axios from "axios";
 import dayjs from 'dayjs'; 
 
-const { RangePicker } = DatePicker;
-const { TextArea } = Input;
+
 
 const normFile = (e: any) => {
   if (Array.isArray(e)) {
@@ -34,9 +32,10 @@ const FormDisabledDemo: React.FC = () => {
   // update Name
   const handleTeacherNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const newTeacherName = event.target.value;
+    console.log(newTeacherName)
     setDataPost((prevData) => ({
       ...prevData,
-      TeacherName: newTeacherName,
+      teacherName: newTeacherName,
     }));
   };
 
@@ -54,12 +53,14 @@ const FormDisabledDemo: React.FC = () => {
       teacherBirthDate: newTeacherBirthDate,
     }));
   };
-  const handleTeacherImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const newTeacherImage = event.target.value;
+  const handleTeacherImageChange = (info:any) => {
+    console.log(info.file.name);
+    const { fileList } = info;
+    setFileList(fileList);
     setDataPost((prevData) => ({
-      ...prevData,
-      teacherImage: newTeacherImage,
-    }));
+        ...prevData,
+        teacherImage: info.file.name,
+      }));
   };
   const handleTeacherAdressChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const newTeacherAdress = event.target.value;
@@ -75,8 +76,7 @@ const FormDisabledDemo: React.FC = () => {
       ...prevData,
       teacherPhone: newTeacherPhone.toString(),
     }));
-  };
-  const [componentDisabled, setComponentDisabled] = useState<boolean>(false);
+  }; 
   const [fileList , setFileList] = useState([]);
   const handleRemove = () => {
     setFileList([]); 
@@ -134,6 +134,7 @@ const FormDisabledDemo: React.FC = () => {
                 action="/upload.do"
                 listType="picture-card" 
                 fileList={fileList} // Provide the fileList
+                onChange={handleTeacherImageChange} 
                 onRemove={handleRemove} // Add remove handler
               >
                 {fileList.length >= 1 ? null : (
