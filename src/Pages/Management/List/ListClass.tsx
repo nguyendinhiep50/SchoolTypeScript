@@ -1,29 +1,17 @@
-import React, {useEffect,useState,ReactNode}  from 'react';
-import { Form, Input, InputNumber, Popconfirm, Table, Typography } from 'antd';
+import React, {useEffect,useState,ReactNode }  from 'react';
+import { Form, Input, InputNumber, Table,Typography,Popconfirm,Select } from 'antd';
 import axios from 'axios';  
 import { format } from 'date-fns';
+import Item from 'antd/es/list/Item'; 
 interface Item {
-  id: string; // Make sure you have a unique id for each item in the array
-  studentName: string;
-  studentImage: string;
-  studentEmail: string;
-  studentPassword:string;
-  studentBirthDate: Date;
-  studentPhone:string;
-  studentAdress :string;
-  studentDateCome:Date; 
+  classLearnsId: string; // Make sure you have a unique id for each item in the array
+  classLearnName: string;
+  classLearnEnrollment: string; 
+  academicProgramId: Date; 
+  teacherId:string;
+  facultyName:string;
 }
-interface ShowColumns {
-  title: string;
-  dataIndex: string;
-  width: string;
-  fixed: string;   
-  editable: boolean;
-  render?: RenderFunction | RenderWithCellFunction;
-}
-
-type RenderFunction = (value: any, record: Item, index: number) => ReactNode;
-type RenderWithCellFunction = (value: any, record: Item, index: number) => ReactNode ;
+ 
 interface EditableCellProps extends React.HTMLAttributes<HTMLElement> {
   editing: boolean;
   dataIndex: string;
@@ -34,6 +22,15 @@ interface EditableCellProps extends React.HTMLAttributes<HTMLElement> {
   children: React.ReactNode;
 }
 
+interface ShowColumns {
+  title: string;
+  dataIndex: string;
+  width: string; 
+  editable: boolean;
+  render?: RenderFunction | RenderWithCellFunction;
+}
+type RenderFunction = (value: any, record: Item, index: number) => ReactNode;
+type RenderWithCellFunction = (value: any, record: Item, index: number) => ReactNode ;
 const EditableCell: React.FC<EditableCellProps> = ({
   editing,
   dataIndex,
@@ -44,7 +41,7 @@ const EditableCell: React.FC<EditableCellProps> = ({
   children,
   ...restProps
 }) => {
-  const inputNode = inputType === 'number' ? <InputNumber /> : <Input />;
+const inputNode = inputType === 'number' ? <InputNumber /> : <Input />;
 
   return (
     <td {...restProps}>
@@ -61,230 +58,215 @@ const EditableCell: React.FC<EditableCellProps> = ({
         >
           {inputNode}
         </Form.Item>
-      ) : (
+      ) : ( 
         children
       )}
     </td>
   );
-};
+}; 
 
-const App: React.FC = () => {
-  const [form] = Form.useForm(); 
-  const [editingid, setEditingid] = useState('');
-  const [dataListCLass, setdataListCLass] = useState<Item[]>([]);
+const App: React.FC = ( ) => {  const [form] = Form.useForm(); 
+  const [editingid, setEditingid] = useState(''); 
+  const [DataTeacherId, setDataTeacherId] = useState(''); 
+  const [AcademicProgramId, setAcademicProgramId] = useState(''); 
+  const [DataListClass, setDataListClass] = useState<Item[]>([]);
   const [dataUpdate, setdataUpdate] = React.useState({ Item:{} as Item})
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get("https://localhost:7232/api/Students");
+        const response = await axios.get("https://localhost:7232/api/ClassLearns");
         console.log(response.data);
-        const studentsData = response.data.map((student: any, index: number) => ({
-          id: student.id,
-          studentName: student.studentName,
-          studentImage: student.studentImage,
-          studentEmail: student.studentEmail,
-          studentBirthDate: format(new Date(student.studentBirthDate), 'yyyy-MM-dd'),        
-          facultyId: student.facultyId,
-          studentAdress :student.studentAdress,
-          studentDateCome:format(new Date( student.studentDateCome), 'yyyy-MM-dd'),
-          studentPhone:student.studentPhone,
-          studentPassword:student.studentPassword,
+        const studentsData = response.data.map((ClassLearns: any, index: number) => ({
+          classLearnsId: ClassLearns.classLearnsId,
+          classLearnName: ClassLearns.classLearnName,
+          classLearnEnrollment: ClassLearns.classLearnEnrollment, 
+          academicProgramId: ClassLearns.academicProgramId,
+          teacherId: ClassLearns.teacherId,
         }));
-        setdataListCLass(studentsData);
+        setDataListClass(studentsData);
         console.log('Fetch data successful');
       } catch (error) {
-        console.error(error);
-        
+        console.error(error); 
       }
-    };
-
+    }; 
     fetchData();
   }, [dataUpdate]);
-  const handleDataChange = (newData :Item) => {
+  const isEditing = (record: Item) => record.classLearnsId === editingid;
+
+  const edit = (record: Partial<Item> & { classLearnsId:string }) => { 
+    setEditingid(record.classLearnsId);
+  };
+  const handleDataChange = (newData: any) => {
     setdataUpdate(prevData => ({
       ...prevData,
       Item: newData
     }));
   };
-  const DeleteID = (record: Partial<Item> & { id: string }) => {
+  const DeleteID = (record: Partial<Item> & { classLearnsId:string }) => {
     axios
-      .delete(
-        "https://localhost:7232/api/Teachers/" +record.id
-      )
-      .then((response) =>{ 
-        alert("Đã xóa giáo viên");
-        const newDataStudent = dataListCLass.filter(item => item.id !== record.id);
-        setdataListCLass(newDataStudent);
-      })
-      .catch((err) => console.log(err));
+        .delete(
+          "https://localhost:7232/api/Students/" +record.classLearnsId
+        )
+        .then((response) =>{ 
+          alert("Đã xóa học sinh");
+          const newDataListClass = DataListClass.filter(item => item.classLearnsId !== record.classLearnsId);
+          handleDataChange(newDataListClass);
+        })
+        .catch((err) => console.log(err));
   };
 
-  const isEditing = (record: Item) => record.id === editingid;
-
-  const edit = (record: Partial<Item> & { id: string }) => {
-    form.setFieldsValue({  studentName: '', studentEmail: '',studentPassword: '',studentAdress:'',studentDateCome:'',studentPhone:'',facultyId:'', ...record });
-    setEditingid(record.id);
-  };
 
   const cancel = () => {
     setEditingid('');
   };
 
-  const save = async (id: string) => {
+  const save = async (id:string) => {
     try {
       const row = (await form.validateFields()) as Item;
-
-      const newData = [...dataListCLass];
-      const index = newData.findIndex((item) => id === item.id);
+      row.classLearnsId = id;
+      row.facultyId = DataTeacherId;
+      row.facultyName = dataKH.find(x=>x.facultyId = DataTeacherId)?.facultyName || "null" ;
+      const newData = [...DataListClass];
+      const index = newData.findIndex((item) => id === item.classLearnsId);
       // id
-      console.log(id);
-      if (index > -1) {
-        const item = newData[index];
-        newData.splice(index, 1, {
-          ...item,
-          ...row,
-        });
-        setdataListCLass(newData);
+      if (index > -1) { 
+        console.log(row); 
+        newData.splice(index, 1,row);  
+        setDataListClass(newData);
         setEditingid('');
         // xử lý cập nhật dữ liệu
         axios
         .put(
-          "https://localhost:7232/api/ClassLearns/" +
+          "https://localhost:7232/api/Students/" +
             id,
             newData[index]
         )
         .then((response) => console.log(response))
-        .catch((err) => console.log(err));
-
+        .catch((err) => {console.log(err) 
+          console.log(newData[index])
+        });
         console.log(newData[index]);
       } else {
         newData.push(row);
-        setdataListCLass(newData);
+        setDataListClass(newData);
         setEditingid('');
       }
     } catch (errInfo) {
+      setEditingid('');
       console.log('Validate Failed:', errInfo);
     }
   };
-
+  const handleSelectChange = (newFacultyId: string) => { 
+    setDataTeacherId(newFacultyId);
+    // setDataTeacherId(newFacultyId.facultyId);
+  };
  const dataColumns: ShowColumns[]  = [
     {
-      title: 'Tên học sinh',
+      title: 'Tên Lớp',
       dataIndex: 'studentName',
-      width: '20%',
-      fixed: 'left',
+      width: '16%', 
+      editable: true,
+    },
+    {
+      title: 'Sĩ Số',
+      dataIndex: 'studentImage',
+      width: '10%',
+      editable: true, 
+
+    },
+    {
+      title: 'Học kì - Khoa',
+      dataIndex: 'studentBirthDate',
+      width: '8%',
       editable: true, 
     },
     {
-      title: 'Ảnh',
-      dataIndex: 'studentImage',
-      width: '10%',
-      fixed: '',
-      editable: true,
-    },
-    {
-      title: 'Email',
-      dataIndex: 'studentEmail',
-      fixed: '',
-      width: '30%',
-      editable: true,
-    },
-    {
-      title: 'Ngày sinh',
-      dataIndex: 'studentBirthDate',
-      fixed: '',
-      width: '15%',
-      editable: true,
-    },
-    {
-      title: 'Địa chỉ',
-      dataIndex: 'studentAdress',
-      width: '20%',
-      fixed: '',
-      editable: true,
-    },
-    {
-      title: 'điện thoại',
-      dataIndex: 'studentPhone',
-      fixed: '',
-      width: '15%',
-      editable: true,
-    },
-    {
-      title: 'Ngày nhập học',
-      dataIndex: 'studentDateCome',
-      fixed: '',
-      width: '15%',
-      editable: true,
-    },
-   {
-      title: 'Mat khau',
-      dataIndex: 'studentPassword',
-      fixed: '',
-      width: '15%',
-      editable: true,
-    },
-    {
-      title: 'Khoa',
-      dataIndex: 'facultyId',
-      fixed: '',
-      width: '15%',
-      editable: true,
+      title: 'Giáo Viên',
+      dataIndex: 'facultyName',
+      width: '8%',
+      editable: false,  
+      render: (_: any, record: Item) => {
+      const editableShow = isEditing(record);
+      return editableShow ? (
+         <Select onChange={handleSelectChange}style={{minWidth:"100px"}}>
+            {dataKH.map((p, index) => (
+              <Select.Option key={p.facultyId} value={p.facultyId}>
+                {p.facultyName}
+              </Select.Option>
+            ))}
+          </Select>
+      ) : (
+        <>
+        <span>{record.facultyName}</span>
+        </>
+      );
+      },
     },
     {
       title: 'operation',
       dataIndex: 'operation',
-      width: '15%',
-      fixed: 'right',      
-      editable: true,
+      width: '8%',
+      editable: false, 
       render: (_: any, record: Item) => {
-        const editable = isEditing(record);
-        return editable ? (
-          <span>
-            <Typography.Link onClick={() => save(record.id)} style={{ marginRight: 8 }}>
-              Save
-            </Typography.Link>
-            <Popconfirm title="Sure to cancel?" onConfirm={cancel}>
-              <a>Cancel</a>
-            </Popconfirm>
-          </span>
-        ) : (
-          <>
-            <Typography.Link disabled={editingid !== ''} onClick={() => edit(record)}>
-              Edit
-            </Typography.Link>
-            <Typography.Link disabled={editingid !== ''} style={{marginLeft:"20px"}} onClick={() => DeleteID(record)}>
-              Delete
-            </Typography.Link>
-          </>
-        );
+      const editableShow = isEditing(record);
+      return editableShow ? (
+        <span>
+          <Typography.Link onClick={() => save(record.classLearnsId)} style={{ marginRight: 8 }}>
+            Save
+          </Typography.Link>
+          <Popconfirm title="Sure to cancel?" onConfirm={cancel}>
+            <a>Cancel</a>
+          </Popconfirm>
+        </span>
+      ) : (
+        <>
+          <Typography.Link disabled={editingid !== ''} onClick={() => edit(record)}>
+            Edit
+          </Typography.Link>
+          <Typography.Link disabled={editingid !== ''} style={{ marginLeft: '20px' }} onClick={() => DeleteID(record)}>
+            Delete
+          </Typography.Link>
+        </>
+      );
       },
-    },
+    }, 
   ];
-
+  const mergedColumns = dataColumns.map((col) => {
+    if (!col.editable) {
+      return col;
+    }
+    return { 
+      ...col,
+      onCell: (record: Item) => ({
+        record,
+        inputType: col.dataIndex === 'id' ? 'studentName' :"null",
+        dataIndex: col.dataIndex,
+        title: col.title,
+        editing: isEditing(record),
+      }),
+    };
+  });
   return (
-    <Form form={form} component={false}>
-      <Table
+    <Form form={form} component={false}  style={{width:"86%"}}> 
+      <Table<Item>
         components={{
           body: {
             cell: EditableCell,
           },
         }}
         bordered
-        dataSource={dataListCLass} 
-        scroll={{ x: 1300 }} 
+        dataSource={DataListClass}   
         rowClassName="editable-row"
         pagination={{
           onChange: cancel,
         }}
       >
-      {dataColumns.map((column:ShowColumns, demcolumn) => {
-        const count: number = demcolumn + 1;
-        const { dataIndex, title, width, fixed, ...restColumnProps } = column;
-        const mappedFixed = fixed === 'left' ? 'left' : fixed === 'right' ? 'right' : undefined;
+      {mergedColumns.map((column:ShowColumns, demcolumn) => {
+        const { dataIndex, title, width, ...restColumnProps } = column;
+       
 
         // Adjust the render function to pass the count as the index parameter
-        const adjustedRender = column.render
+      const adjustedRender = column.render
         ? (value: any, record: Item, index: number) =>
             column.render!(value, record as Item, index)
         : undefined;
@@ -293,8 +275,7 @@ const App: React.FC = () => {
             key={dataIndex}
             title={title}
             dataIndex={dataIndex}
-            width={width}
-            fixed={mappedFixed}
+            width={width} 
             render={adjustedRender}
             {...restColumnProps}
           />

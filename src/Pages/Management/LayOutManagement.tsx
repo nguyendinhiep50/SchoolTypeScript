@@ -12,17 +12,13 @@ import AddSemester from "./Add/AddSemester";
 import AddClass from "./Add/AddClass";
 import AddListStudentClass from "./Add/AddListStudentClass";
 
-import ListStudent from "./List/ListStudent";
+import ListStudent from "./LayOutListStudent";
 import ListTeacher from "./List/ListTeacher";
 import ListSubject from "./List/ListSubject";
 import ListSemester from "./List/ListSemester";
 import ListFaculty from "./List/ListFaculty"; 
 import ListClassLearn from "./List/ListClassLearn"; 
 import ListClass from "./List/ListClass"; 
-
-
-
-
 
 function App() {
   return (

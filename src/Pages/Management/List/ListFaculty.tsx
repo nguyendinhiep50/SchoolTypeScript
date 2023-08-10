@@ -3,7 +3,7 @@ import { Form, Input, InputNumber, Popconfirm, Table, Typography } from 'antd';
 import axios from 'axios';  
 import { format } from 'date-fns';
 interface Item {
-  id: string; // Make sure you have a unique id for each item in the array
+  facultyId: string; // Make sure you have a unique id for each item in the array
   facultyName: string;
 }
 
@@ -63,7 +63,7 @@ const App: React.FC = () => {
         const response = await axios.get("https://localhost:7232/api/Faculties");
         console.log(response.data);
         const facultysData = response.data.map((faculty: any, index: number) => ({
-          id: faculty.id,
+          facultyId: faculty.facultyId,
           facultyName: faculty.facultyName,
         }));
         setdataFaculty(facultysData);
@@ -83,24 +83,24 @@ const App: React.FC = () => {
       Item: newData
     }));
   };
-  const DeleteID = (record: Partial<Item> & { id: string }) => {
+  const DeleteID = (record: Partial<Item> & { facultyId: string }) => {
     axios
       .delete(
-        "https://localhost:7232/api/Faculties/" +record.id
+        "https://localhost:7232/api/Faculties/" +record.facultyId
       )
       .then((response) =>{ 
         alert("Đã xóa khoa");
-        const newdataFaculty = dataFaculty.filter(item => item.id !== record.id);
+        const newdataFaculty = dataFaculty.filter(item => item.facultyId !== record.facultyId);
         setdataFaculty(newdataFaculty);
       })
       .catch((err) => console.log(err));
   };
 
-  const isEditing = (record: Item) => record.id === editingid;
+  const isEditing = (record: Item) => record.facultyId === editingid;
 
-  const edit = (record: Partial<Item> & { id: string }) => {
+  const edit = (record: Partial<Item> & { facultyId: string }) => {
     form.setFieldsValue({  facultyName: '',  ...record });
-    setEditingid(record.id);
+    setEditingid(record.facultyId);
   };
 
   const cancel = () => {
@@ -112,7 +112,7 @@ const App: React.FC = () => {
       const row = (await form.validateFields()) as Item;
 
       const newData = [...dataFaculty];
-      const index = newData.findIndex((item) => id === item.id);
+      const index = newData.findIndex((item) => id === item.facultyId);
       // id
       console.log(id);
       if (index > -1) {
@@ -159,7 +159,7 @@ const App: React.FC = () => {
         const editable = isEditing(record);
         return editable ? (
           <span>
-            <Typography.Link onClick={() => save(record.id)} style={{ marginRight: 8 }}>
+            <Typography.Link onClick={() => save(record.facultyId)} style={{ marginRight: 8 }}>
               Save
             </Typography.Link>
             <Popconfirm title="Sure to cancel?" onConfirm={cancel}>

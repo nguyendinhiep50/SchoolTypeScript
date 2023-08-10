@@ -3,11 +3,10 @@ import { Form, Input, InputNumber, Popconfirm, Table, Typography } from 'antd';
 import axios from 'axios';  
 import { format } from 'date-fns';
 interface Item {
-  id: string; // Make sure you have a unique id for each item in the array
+  semesterId: string; // Make sure you have a unique id for each item in the array
   semesterName: string;
   semesterDayBegin:Date;
-  semesterDayEnd:Date;
-  semesterStatus:boolean;
+  semesterDayEnd:Date; 
 }
 interface EditableCellProps extends React.HTMLAttributes<HTMLElement> {
   editing: boolean;
@@ -64,11 +63,10 @@ const App: React.FC = () => {
         const response = await axios.get("https://localhost:7232/api/Semesters");
         console.log(response.data);
         const semestersData = response.data.map((semester: any, index: number) => ({
-          id: semester.id,
+          semesterId: semester.semesterId,
           semesterName: semester.semesterName,
           semesterDayBegin:format(new Date( semester.semesterDayBegin), 'yyyy-MM-dd'),
-          semesterDayEnd:format(new Date( semester.semesterDayEnd), 'yyyy-MM-dd'),
-          semesterStatus: semester.semesterStatus
+          semesterDayEnd:format(new Date( semester.semesterDayEnd), 'yyyy-MM-dd'), 
         }));
         setdataSemester(semestersData);
         console.log('Fetch data successful');
@@ -85,23 +83,23 @@ const App: React.FC = () => {
       Item: newData
     }));
   };
-  const DeleteID = (record: Partial<Item> & { id: string }) => {
+  const DeleteID = (record: Partial<Item> & { semesterId: string }) => {
     axios
       .delete(
-        "https://localhost:7232/api/Semesters/" +record.id
+        "https://localhost:7232/api/Semesters/" +record.semesterId
       )
       .then((response) =>{ 
         alert("Đã xóa học kì -"+ record.semesterName);
-        const newDataStudent = dataSemester.filter(item => item.id !== record.id);
+        const newDataStudent = dataSemester.filter(item => item.semesterId !== record.semesterId);
         setdataSemester(newDataStudent);
       })
       .catch((err) => console.log(err));
   };
-  const isEditing = (record: Item) => record.id === editingid;
+  const isEditing = (record: Item) => record.semesterId === editingid;
 
-  const edit = (record: Partial<Item> & { id: string }) => {
+  const edit = (record: Partial<Item> & { semesterId: string }) => {
     form.setFieldsValue({ facultyName: '',  ...record });
-    setEditingid(record.id);
+    setEditingid(record.semesterId);
   };
 
   const cancel = () => {
@@ -113,7 +111,7 @@ const App: React.FC = () => {
       const row = (await form.validateFields()) as Item;
 
       const newData = [...dataSemester];
-      const index = newData.findIndex((item) => id === item.id);
+      const index = newData.findIndex((item) => id === item.semesterId);
       // id
       console.log(id);
       if (index > -1) {
@@ -172,7 +170,7 @@ const App: React.FC = () => {
         const editable = isEditing(record);
         return editable ? (
           <span>
-            <Typography.Link onClick={() => save(record.id)} style={{ marginRight: 8 }}>
+            <Typography.Link onClick={() => save(record.semesterId)} style={{ marginRight: 8 }}>
               Save
             </Typography.Link>
             <Popconfirm title="Sure to cancel?" onConfirm={cancel}>

@@ -3,7 +3,7 @@ import { Form, Input, InputNumber, Popconfirm, Table, Typography } from 'antd';
 import axios from 'axios';  
 import { format } from 'date-fns';
 interface Item {
-  id: string; // Make sure you have a unique id for each item in the array
+  subjectId: string; // Make sure you have a unique id for each item in the array
   subjectName: string;
   subjectCredit: number;
   subjectMandatory:boolean; 
@@ -73,7 +73,7 @@ const App: React.FC = () => {
         const response = await axios.get("https://localhost:7232/api/Subjects");
         console.log(response.data);
         const SubjectsData = response.data.map((Subject: any, index: number) => ({
-          id: Subject.id,
+          subjectId: Subject.subjectId,
           subjectName: Subject.subjectName,
           subjectCredit:Subject.subjectCredit,
           subjectMandatory:Subject.subjectMandatory === true ? "true" : "false",
@@ -94,24 +94,24 @@ const App: React.FC = () => {
       Item: newData
     }));
   };
-  const DeleteID = (record: Partial<Item> & { id: string }) => {
+  const DeleteID = (record: Partial<Item> & { subjectId: string }) => {
     axios
       .delete(
-        "https://localhost:7232/api/Subjects/" +record.id
+        "https://localhost:7232/api/Subjects/" +record.subjectId
       )
       .then((response) =>{ 
         alert("Đã xóa môn học này -"+ record.subjectName);
-        const newDataStudent = dataSubject.filter(item => item.id !== record.id);
+        const newDataStudent = dataSubject.filter(item => item.subjectId !== record.subjectId);
         setdataSubject(newDataStudent);
       })
       .catch((err) => console.log(err));
   };
 
-  const isEditing = (record: Item) => record.id === editingid;
+  const isEditing = (record: Item) => record.subjectId === editingid;
 
-  const edit = (record: Partial<Item> & { id: string }) => {
+  const edit = (record: Partial<Item> & { subjectId: string }) => {
     form.setFieldsValue({ subjectName: '',subjectCredit:0 ,subjectMandatory:'hiban',  ...record });
-    setEditingid(record.id);
+    setEditingid(record.subjectId);
   };
 
   const cancel = () => {
@@ -120,32 +120,26 @@ const App: React.FC = () => {
 
   const save = async (id: string) => {
     try {
-      const row = (await form.validateFields()) as Item;
+      const row = (await form.validateFields()); 
+      row.subjectId = id; 
+      console.log(row.subjectMandatory);
+      let result = (row.subjectMandatory === "true" ? true : false);
+      row.subjectMandatory =result ;
       const newData = [...dataSubject];
-      const index = newData.findIndex((item) => id === item.id);
-      // id
-      console.log(id);
-      if (index > -1) {
-        const item = newData[index];
-        item.subjectMandatory = item.subjectMandatory ===true? true:false
-        newData.splice(index, 1, {
-          ...item,
-          ...row,
-        });
+      const index = newData.findIndex((item) => id === item.subjectId);
+      // id 
+      if (index > -1) { 
+        newData.splice(index, 1, row);
         setdataSubject(newData);
         setEditingid('');
-        // xử lý cập nhật dữ liệu
-        let item2 = newData[index];
-        item2.subjectMandatory = item2.subjectMandatory ===true? true:false
         axios
         .put(
           "https://localhost:7232/api/Subjects/" +
             id,
-            item2
+            newData[index]
         )
         .then((response) => console.log(response))
         .catch((err) => console.log(err));
-        // newData[index].subjectMandatory =  newData[index].subjectMandatory ===true? 'true':'false'
       } else {
         newData.push(row);
         setdataSubject(newData);
@@ -183,7 +177,7 @@ const App: React.FC = () => {
         const editable = isEditing(record);
         return editable ? (
           <span>
-            <Typography.Link onClick={() => save(record.id)} style={{ marginRight: 8 }}>
+            <Typography.Link onClick={() => save(record.subjectId)} style={{ marginRight: 8 }}>
               Save
             </Typography.Link>
             <Popconfirm title="Sure to cancel?" onConfirm={cancel}>

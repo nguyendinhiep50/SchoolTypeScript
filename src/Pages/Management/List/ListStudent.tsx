@@ -17,6 +17,11 @@ interface Faculty {
   facultyName: string;
   // Add other properties if applicable
 }
+
+interface ChildProps {
+  dataKH: Faculty[];
+  FilterString: any;
+}
 interface EditableCellProps extends React.HTMLAttributes<HTMLElement> {
   editing: boolean;
   dataIndex: string;
@@ -68,27 +73,18 @@ const inputNode = inputType === 'number' ? <InputNumber /> : <Input />;
       )}
     </td>
   );
-};
+}; 
 
-const App: React.FC = () => {
-  const [form] = Form.useForm(); 
-  const [editingid, setEditingid] = useState('');
-  const [deleteId, setDelete] = useState('');
-  const [DataEditKhoa, setDataEditKhoa] = useState('');
-  // const [DataEditKhoaId, setDataEditKhoaId] = useState('');
-  const [dataKH, setDataKH] = useState<Faculty[]>([]); 
+const App: React.FC<ChildProps> = (props) => {  const [form] = Form.useForm(); 
+  const [editingid, setEditingid] = useState(''); 
+  const [DataEditKhoaId, setDataEditKhoaId] = useState('');
+  // const [dataKH, setDataKH] = useState<Faculty[]>([]); 
+  const { dataKH } = props;
+  const { DataFilter, FilterString  } = props.FilterString;
   const [dataStudent, setDataStudent] = useState<Item[]>([]);
   const [dataUpdate, setdataUpdate] = React.useState({ Item:{} as Item})
   useEffect(() => {
     const fetchData = async () => {
-      axios
-      .get("https://localhost:7232/api/Faculties")
-      .then((response) => {
-        setDataKH(response.data);
-      })
-      .catch((error) => {
-        console.error(error);
-      });
       try {
         const response = await axios.get("https://localhost:7232/api/Students/TakeNameFaculty");
         console.log(response.data);
@@ -105,8 +101,28 @@ const App: React.FC = () => {
         console.error(error); 
       }
     }; 
-    fetchData();
-  }, [dataUpdate]);
+    const fetchDataFilter = async () => {
+      try {
+        const response = await axios.get("https://localhost:7232/api/Students/StudentInFaculty/"+FilterString);
+        console.log(response.data);
+        const studentsData = response.data.map((student: any, index: number) => ({
+          studentId: student.studentId,
+          studentName: student.studentName,
+          studentImage: student.studentImage, 
+          studentBirthDate: format(new Date(student.studentBirthDate), 'yyyy-MM-dd'),        
+          facultyName: student.facultyName,
+        }));
+        setDataStudent(studentsData);
+        console.log('Fetch data successful');
+      } catch (error) {
+        console.error(error); 
+      }
+    }; 
+    if(FilterString!="")
+      fetchData();
+    else
+      fetchDataFilter();
+  }, [dataUpdate || DataFilter]);
   const isEditing = (record: Item) => record.studentId === editingid;
 
   const edit = (record: Partial<Item> & { studentId:string }) => {
@@ -142,14 +158,12 @@ const App: React.FC = () => {
     try {
       const row = (await form.validateFields()) as Item;
       row.studentId = id;
-      row.facultyId = DataEditKhoa;
-      // row.facultyId = DataEditKhoaId;
-
+      row.facultyId = DataEditKhoaId;
+      row.facultyName = dataKH.find(x=>x.facultyId = DataEditKhoaId)?.facultyName || "null" ;
       const newData = [...dataStudent];
       const index = newData.findIndex((item) => id === item.studentId);
       // id
-      if (index > -1) {
-        const item = newData[index]; 
+      if (index > -1) { 
         console.log(row); 
         newData.splice(index, 1,row);  
         setDataStudent(newData);
@@ -177,7 +191,7 @@ const App: React.FC = () => {
     }
   };
   const handleSelectChange = (newFacultyId: string) => { 
-    setDataEditKhoa(newFacultyId);
+    setDataEditKhoaId(newFacultyId);
     // setDataEditKhoaId(newFacultyId.facultyId);
   };
  const dataColumns: ShowColumns[]  = [
@@ -208,7 +222,7 @@ const App: React.FC = () => {
       render: (_: any, record: Item) => {
       const editableShow = isEditing(record);
       return editableShow ? (
-         <Select onChange={handleSelectChange}>
+         <Select onChange={handleSelectChange}style={{minWidth:"100px"}}>
             {dataKH.map((p, index) => (
               <Select.Option key={p.facultyId} value={p.facultyId}>
                 {p.facultyName}
@@ -217,7 +231,7 @@ const App: React.FC = () => {
           </Select>
       ) : (
         <>
-        <h1>{record.facultyName}</h1>
+        <span>{record.facultyName}</span>
         </>
       );
       },
