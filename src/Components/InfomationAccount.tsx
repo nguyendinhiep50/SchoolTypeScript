@@ -1,36 +1,31 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import axios from "axios";
 import { PlusOutlined } from '@ant-design/icons';
+import { BrowserRouter as Router, useHistory } from 'react-router-dom';
 import {
   Button,
-  Cascader,
-  Checkbox,
-  DatePicker,
   Form,
   Input,
-  InputNumber,
-  Radio,
-  Select,
-  Slider,
   Switch,
-  TreeSelect,
-  Upload,
-  Col, Row
 } from 'antd';
-
-
-const { RangePicker } = DatePicker;
-const { TextArea } = Input;
-
 const normFile = (e: any) => {
   if (Array.isArray(e)) {
     return e;
   }
   return e?.fileList;
 };
-
-const FormDisabledDemo: React.FC = () => {
+interface InfoAccount {
+  managementId: string,
+  managementName: string,
+  managementEmail: string,
+  managementPassword: string
+}
+interface InfomationProps {
+  dataInfoAccount: InfoAccount;
+}
+const FormDisabledDemo: React.FC<InfomationProps> = ({ dataInfoAccount }) => {
   const [componentDisabled, setComponentDisabled] = useState<boolean>(false);
-
+  const history = useHistory();
   return (
     <>
       <Form
@@ -41,10 +36,10 @@ const FormDisabledDemo: React.FC = () => {
         style={{ maxWidth: 600 }}
       >
         <Form.Item label="Họ và tên">
-          <Input value={"Nguyen dinh hiep"} />
+          <Input defaultValue={dataInfoAccount?.managementName} />
         </Form.Item>
         <Form.Item label="Email">
-          <Input />
+          <Input defaultValue={dataInfoAccount?.managementEmail} />
         </Form.Item>
         <Button type="primary" block>
           Cập nhật dữ liệu
@@ -60,4 +55,4 @@ const FormDisabledDemo: React.FC = () => {
   );
 };
 
-export default () => <FormDisabledDemo />;
+export default FormDisabledDemo;

@@ -1,7 +1,7 @@
 import React, { useEffect, useState, ReactNode } from 'react';
 import { Form, Button, Input, InputNumber, Table, Typography, Popconfirm, Select, Pagination } from 'antd';
 import axios from 'axios';
-import { BrowserRouter as Router, Route, Link, useHistory, useLocation } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Link } from 'react-router-dom';
 import { format } from 'date-fns';
 import Item from 'antd/es/list/Item';
 interface Item {
