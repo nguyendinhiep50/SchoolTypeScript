@@ -1,6 +1,7 @@
-import React, {useEffect,useState}  from 'react';
-import { Form, Input, InputNumber, Popconfirm, Table, Typography } from 'antd';
-import axios from 'axios';  
+import React, { useEffect, useState } from 'react';
+import { Form, Input, InputNumber, Popconfirm, Table, Typography, Button } from 'antd';
+import { BrowserRouter as Router, Route, Link } from 'react-router-dom';
+import axios from 'axios';
 import { format } from 'date-fns';
 interface Item {
   id: string; // Make sure you have a unique id for each item in the array
@@ -53,14 +54,15 @@ const EditableCell: React.FC<EditableCellProps> = ({
 };
 
 const App: React.FC = () => {
-  const [form] = Form.useForm(); 
+  const [form] = Form.useForm();
   const [editingid, setEditingid] = useState('');
   const [dataFaculty, setdataFaculty] = useState<Item[]>([]);
-  const [dataUpdate, setdataUpdate] = React.useState({ Item:{} as Item})
+  const [dataUpdate, setdataUpdate] = React.useState({ Item: {} as Item })
   useEffect(() => {
     const fetchData = async () => {
       try {
         const response = await axios.get("https://localhost:7232/api/Faculties");
+
         console.log(response.data);
         const facultysData = response.data.map((faculty: any, index: number) => ({
           id: faculty.id,
@@ -70,14 +72,14 @@ const App: React.FC = () => {
         console.log('Fetch data successful');
       } catch (error) {
         console.error(error);
-        
+
       }
     };
 
     fetchData();
 
   }, [dataUpdate]);
-  const handleDataChange = (newData :Item) => {
+  const handleDataChange = (newData: Item) => {
     setdataUpdate(prevData => ({
       ...prevData,
       Item: newData
@@ -86,9 +88,9 @@ const App: React.FC = () => {
   const DeleteID = (record: Partial<Item> & { id: string }) => {
     axios
       .delete(
-        "https://localhost:7232/api/Faculties/" +record.id
+        "https://localhost:7232/api/Faculties/" + record.id
       )
-      .then((response) =>{ 
+      .then((response) => {
         alert("Đã xóa khoa");
         const newdataFaculty = dataFaculty.filter(item => item.id !== record.id);
         setdataFaculty(newdataFaculty);
@@ -99,7 +101,7 @@ const App: React.FC = () => {
   const isEditing = (record: Item) => record.id === editingid;
 
   const edit = (record: Partial<Item> & { id: string }) => {
-    form.setFieldsValue({  facultyName: '',  ...record });
+    form.setFieldsValue({ facultyName: '', ...record });
     setEditingid(record.id);
   };
 
@@ -125,13 +127,13 @@ const App: React.FC = () => {
         setEditingid('');
         // xử lý cập nhật dữ liệu
         axios
-        .put(
-          "https://localhost:7232/api/Faculties/" +
+          .put(
+            "https://localhost:7232/api/Faculties/" +
             id,
             newData[index]
-        )
-        .then((response) => console.log(response))
-        .catch((err) => console.log(err));
+          )
+          .then((response) => console.log(response))
+          .catch((err) => console.log(err));
 
         console.log(newData[index]);
       } else {
@@ -148,13 +150,13 @@ const App: React.FC = () => {
     {
       title: 'Tên khoa',
       dataIndex: 'facultyName',
-      width: '20%', 
+      width: '20%',
       editable: true,
     },
     {
       title: 'operation',
       dataIndex: 'operation',
-      width: '15%', 
+      width: '15%',
       render: (_: any, record: Item) => {
         const editable = isEditing(record);
         return editable ? (
@@ -171,7 +173,7 @@ const App: React.FC = () => {
             <Typography.Link disabled={editingid !== ''} onClick={() => edit(record)}>
               Edit
             </Typography.Link>
-            <Typography.Link disabled={editingid !== ''} style={{marginLeft:"20px"}} onClick={() => DeleteID(record)}>
+            <Typography.Link disabled={editingid !== ''} style={{ marginLeft: "20px" }} onClick={() => DeleteID(record)}>
               Delete
             </Typography.Link>
           </>
@@ -198,22 +200,27 @@ const App: React.FC = () => {
   });
 
   return (
-    <Form form={form} component={false}>
-      <Table
-        components={{
-          body: {
-            cell: EditableCell,
-          },
-        }}
-        bordered
-        dataSource={dataFaculty}
-        columns={mergedColumns} 
-        rowClassName="editable-row"
-        pagination={{
-          onChange: cancel,
-        }}
-      />
-    </Form>
+    <>
+      <Link to="/Management/ClassLearnAdd">
+        <Button type="primary" style={{ width: "100px", marginBottom: "20px" }}>Add Class Learn</Button>
+      </Link>
+      <Form form={form} component={false}>
+        <Table
+          components={{
+            body: {
+              cell: EditableCell,
+            },
+          }}
+          bordered
+          dataSource={dataFaculty}
+          columns={mergedColumns}
+          rowClassName="editable-row"
+          pagination={{
+            onChange: cancel,
+          }}
+        />
+      </Form>
+    </>
   );
 };
 

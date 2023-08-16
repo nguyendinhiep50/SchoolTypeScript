@@ -1,6 +1,7 @@
-import React, {useEffect,useState,ReactNode}  from 'react';
-import { Form, Input, InputNumber, Popconfirm, Table, Typography } from 'antd';
-import axios from 'axios';  
+import React, { useEffect, useState, ReactNode } from 'react';
+import { Form, Button, Input, InputNumber, Popconfirm, Table, Typography } from 'antd';
+import { BrowserRouter as Router, Route, Link } from 'react-router-dom';
+import axios from 'axios';
 import { format } from 'date-fns';
 
 
@@ -10,23 +11,23 @@ interface Item {
   studentName: string;
   studentImage: string;
   studentEmail: string;
-  studentPassword:string;
+  studentPassword: string;
   studentBirthDate: Date;
-  studentPhone:string;
-  studentAdress :string;
-  studentDateCome:Date; 
+  studentPhone: string;
+  studentAdress: string;
+  studentDateCome: Date;
 }
 interface ShowColumns {
   title: string;
   dataIndex: string;
   width: string;
-  fixed: string;   
+  fixed: string;
   editable: boolean;
   render?: RenderFunction | RenderWithCellFunction;
 }
 
 type RenderFunction = (value: any, record: Item, index: number) => ReactNode;
-type RenderWithCellFunction = (value: any, record: Item, index: number) => ReactNode ;
+type RenderWithCellFunction = (value: any, record: Item, index: number) => ReactNode;
 interface EditableCellProps extends React.HTMLAttributes<HTMLElement> {
   editing: boolean;
   dataIndex: string;
@@ -72,10 +73,10 @@ const EditableCell: React.FC<EditableCellProps> = ({
 };
 
 const App: React.FC = () => {
-  const [form] = Form.useForm(); 
+  const [form] = Form.useForm();
   const [editingid, setEditingid] = useState('');
   const [dataListCLass, setdataListCLass] = useState<Item[]>([]);
-  const [dataUpdate, setdataUpdate] = React.useState({ Item:{} as Item})
+  const [dataUpdate, setdataUpdate] = React.useState({ Item: {} as Item })
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -86,24 +87,24 @@ const App: React.FC = () => {
           studentName: student.studentName,
           studentImage: student.studentImage,
           studentEmail: student.studentEmail,
-          studentBirthDate: format(new Date(student.studentBirthDate), 'yyyy-MM-dd'),        
+          studentBirthDate: format(new Date(student.studentBirthDate), 'yyyy-MM-dd'),
           facultyId: student.facultyId,
-          studentAdress :student.studentAdress,
-          studentDateCome:format(new Date( student.studentDateCome), 'yyyy-MM-dd'),
-          studentPhone:student.studentPhone,
-          studentPassword:student.studentPassword,
+          studentAdress: student.studentAdress,
+          studentDateCome: format(new Date(student.studentDateCome), 'yyyy-MM-dd'),
+          studentPhone: student.studentPhone,
+          studentPassword: student.studentPassword,
         }));
         setdataListCLass(studentsData);
         console.log('Fetch data successful');
       } catch (error) {
         console.error(error);
-        
+
       }
     };
 
     fetchData();
   }, [dataUpdate]);
-  const handleDataChange = (newData :Item) => {
+  const handleDataChange = (newData: Item) => {
     setdataUpdate(prevData => ({
       ...prevData,
       Item: newData
@@ -112,9 +113,9 @@ const App: React.FC = () => {
   const DeleteID = (record: Partial<Item> & { id: string }) => {
     axios
       .delete(
-        "https://localhost:7232/api/Teachers/" +record.id
+        "https://localhost:7232/api/Teachers/" + record.id
       )
-      .then((response) =>{ 
+      .then((response) => {
         alert("Đã xóa giáo viên");
         const newDataStudent = dataListCLass.filter(item => item.id !== record.id);
         setdataListCLass(newDataStudent);
@@ -125,7 +126,7 @@ const App: React.FC = () => {
   const isEditing = (record: Item) => record.id === editingid;
 
   const edit = (record: Partial<Item> & { id: string }) => {
-    form.setFieldsValue({  studentName: '', studentEmail: '',studentPassword: '',studentAdress:'',studentDateCome:'',studentPhone:'',facultyId:'', ...record });
+    form.setFieldsValue({ studentName: '', studentEmail: '', studentPassword: '', studentAdress: '', studentDateCome: '', studentPhone: '', facultyId: '', ...record });
     setEditingid(record.id);
   };
 
@@ -151,13 +152,13 @@ const App: React.FC = () => {
         setEditingid('');
         // xử lý cập nhật dữ liệu
         axios
-        .put(
-          "https://localhost:7232/api/ClassLearns/" +
+          .put(
+            "https://localhost:7232/api/ClassLearns/" +
             id,
             newData[index]
-        )
-        .then((response) => console.log(response))
-        .catch((err) => console.log(err));
+          )
+          .then((response) => console.log(response))
+          .catch((err) => console.log(err));
 
         console.log(newData[index]);
       } else {
@@ -170,13 +171,13 @@ const App: React.FC = () => {
     }
   };
 
- const dataColumns: ShowColumns[]  = [
+  const dataColumns: ShowColumns[] = [
     {
       title: 'Tên học sinh',
       dataIndex: 'studentName',
       width: '20%',
       fixed: 'left',
-      editable: true, 
+      editable: true,
     },
     {
       title: 'Ảnh',
@@ -220,7 +221,7 @@ const App: React.FC = () => {
       width: '15%',
       editable: true,
     },
-   {
+    {
       title: 'Mat khau',
       dataIndex: 'studentPassword',
       fixed: '',
@@ -238,7 +239,7 @@ const App: React.FC = () => {
       title: 'operation',
       dataIndex: 'operation',
       width: '15%',
-      fixed: 'right',      
+      fixed: 'right',
       editable: true,
       render: (_: any, record: Item) => {
         const editable = isEditing(record);
@@ -256,7 +257,7 @@ const App: React.FC = () => {
             <Typography.Link disabled={editingid !== ''} onClick={() => edit(record)}>
               Edit
             </Typography.Link>
-            <Typography.Link disabled={editingid !== ''} style={{marginLeft:"20px"}} onClick={() => DeleteID(record)}>
+            <Typography.Link disabled={editingid !== ''} style={{ marginLeft: "20px" }} onClick={() => DeleteID(record)}>
               Delete
             </Typography.Link>
           </>
@@ -266,45 +267,50 @@ const App: React.FC = () => {
   ];
 
   return (
-    <Form form={form} component={false}>
-      <Table
-        components={{
-          body: {
-            cell: EditableCell,
-          },
-        }}
-        bordered
-        dataSource={dataListCLass} 
-        scroll={{ x: 1300 }} 
-        rowClassName="editable-row"
-        pagination={{
-          onChange: cancel,
-        }}
-      >
-      {dataColumns.map((column:ShowColumns, demcolumn) => {
-        const count: number = demcolumn + 1;
-        const { dataIndex, title, width, fixed, ...restColumnProps } = column;
-        const mappedFixed = fixed === 'left' ? 'left' : fixed === 'right' ? 'right' : undefined;
+    <>
+      <Link to="/Management/add">
+        <Button type="primary" style={{ width: "120px", marginBottom: "20px" }}>Add Student Classs</Button>
+      </Link>
+      <Form form={form} component={false}>
+        <Table
+          components={{
+            body: {
+              cell: EditableCell,
+            },
+          }}
+          bordered
+          dataSource={dataListCLass}
+          scroll={{ x: 1300 }}
+          rowClassName="editable-row"
+          pagination={{
+            onChange: cancel,
+          }}
+        >
+          {dataColumns.map((column: ShowColumns, demcolumn) => {
+            const count: number = demcolumn + 1;
+            const { dataIndex, title, width, fixed, ...restColumnProps } = column;
+            const mappedFixed = fixed === 'left' ? 'left' : fixed === 'right' ? 'right' : undefined;
 
-        // Adjust the render function to pass the count as the index parameter
-        const adjustedRender = column.render
-        ? (value: any, record: Item, index: number) =>
-            column.render!(value, record as Item, index)
-        : undefined;
-        return (
-          <Table.Column<Item>
-            key={dataIndex}
-            title={title}
-            dataIndex={dataIndex}
-            width={width}
-            fixed={mappedFixed}
-            render={adjustedRender}
-            {...restColumnProps}
-          />
-        );
-      })}
-      </Table>
-    </Form>
+            // Adjust the render function to pass the count as the index parameter
+            const adjustedRender = column.render
+              ? (value: any, record: Item, index: number) =>
+                column.render!(value, record as Item, index)
+              : undefined;
+            return (
+              <Table.Column<Item>
+                key={dataIndex}
+                title={title}
+                dataIndex={dataIndex}
+                width={width}
+                fixed={mappedFixed}
+                render={adjustedRender}
+                {...restColumnProps}
+              />
+            );
+          })}
+        </Table>
+      </Form>
+    </>
   );
 };
 

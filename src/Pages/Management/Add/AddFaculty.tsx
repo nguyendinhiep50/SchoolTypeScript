@@ -1,13 +1,14 @@
-import React, { useState } from 'react'; 
+import React, { useState } from 'react';
 import { PlusOutlined } from '@ant-design/icons';
 import {
-  Button, 
+  Button,
   DatePicker,
   Form,
   Input,
-  Col, Row,Layout,theme
+  Col, Row, Layout, theme
 } from 'antd';
-import axios from "axios"; 
+import { BrowserRouter as Link, useHistory } from 'react-router-dom';
+import axios from "axios";
 
 
 const normFile = (e: any) => {
@@ -18,10 +19,11 @@ const normFile = (e: any) => {
 };
 
 const FormDisabledDemo: React.FC = () => {
+  const accessToken = localStorage.getItem("access_tokenAdmin");
+  const history = useHistory();
   const [form] = Form.useForm();
-  const [componentDisabled, setComponentDisabled] = useState<boolean>(false);
-  const [DataPost,setDataPost] = useState({ 
-    facultyName:"",
+  const [DataPost, setDataPost] = useState({
+    facultyName: "",
   });
   const handleFacultyNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const newfacultyName = event.target.value;
@@ -33,43 +35,50 @@ const FormDisabledDemo: React.FC = () => {
   const handleSaveClick = async () => {
     console.log(DataPost);
     axios
-      .post("https://localhost:7232/api/Faculties", DataPost)
-      .then((response) => alert("thêm khoa thành công"))
+      .post("https://localhost:7232/api/Faculties", DataPost, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`
+        }
+      })
+      .then((response) => {
+        alert("thêm khoa thành công")
+        history.push("/Management/FacultyList");
+      })
       .catch((err) => console.log(err));
   };
   const { Content } = Layout;
-   const {
-        token: { colorBgContainer },
-    } = theme.useToken();
+  const {
+    token: { colorBgContainer },
+  } = theme.useToken();
   return (
     <>
-      <Layout style={{ padding: "0 24px 24px" }}>
+      <Layout >
         <Content
-            style={{
+          style={{
             padding: "0 24px",
             margin: 0,
             minHeight: 280,
             background: colorBgContainer,
-            }}
+          }}
         >
-            <h1>Account </h1>
-            <Form
-              form={form}
-              labelCol={{ span: 4 }}
-              wrapperCol={{ span: 14 }}
-              layout="horizontal"
-              style={{ maxWidth: 600 }}
-            >
-              <Form.Item name="NameFaculty" label="Tên khoa">
-                <Input onBlur={handleFacultyNameChange} placeholder={"Tên khoa"} />
-              </Form.Item>
-              
-              <Button type="primary" block onClick={handleSaveClick}>
-                  Add Faculty
-              </Button> 
-            </Form>
+          <h1>Account </h1>
+          <Form
+            form={form}
+            labelCol={{ span: 4 }}
+            wrapperCol={{ span: 14 }}
+            layout="horizontal"
+            style={{ maxWidth: 600 }}
+          >
+            <Form.Item name="NameFaculty" label="Tên khoa">
+              <Input onBlur={handleFacultyNameChange} placeholder={"Tên khoa"} />
+            </Form.Item>
+
+            <Button type="primary" block onClick={handleSaveClick}>
+              Add Faculty
+            </Button>
+          </Form>
         </Content>
-      </Layout> 
+      </Layout>
     </>
   );
 };

@@ -10,7 +10,7 @@ const App: React.FC = () => {
 
   return (
     <>
-      <h1>Change Password</h1>
+      <h1 style={{ margin: "0px " }}>Change Password</h1>
       <Form
         name="normal_login"
         className="login-form"
@@ -46,7 +46,7 @@ const App: React.FC = () => {
         </Form.Item>
         <Form.Item>
           <Button type="primary" htmlType="submit" className="login-form-button">
-            <Link to="/ChangePassword">
+            <Link to="/IndexStudent">
               <i className="fa fa-shopping-cart"></i> Save Change
             </Link>
           </Button>

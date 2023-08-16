@@ -1,15 +1,16 @@
-import React, { useState } from 'react'; 
+import React, { useState } from 'react';
 import { PlusOutlined } from '@ant-design/icons';
+import { BrowserRouter as Link, useHistory } from 'react-router-dom';
 import {
   Button,
   DatePicker,
   Form,
   Input,
   Upload,
-  Layout,theme
+  Layout, theme
 } from 'antd';
 import axios from "axios";
-import dayjs from 'dayjs'; 
+import dayjs from 'dayjs';
 
 
 
@@ -21,13 +22,15 @@ const normFile = (e: any) => {
 };
 
 const FormDisabledDemo: React.FC = () => {
-    const [DataPost,setDataPost] = useState({ 
-    teacherName:"",
-    teacherImage:"",
+  const accessToken = localStorage.getItem("access_tokenAdmin");
+  const history = useHistory();
+  const [DataPost, setDataPost] = useState({
+    teacherName: "",
+    teacherImage: "",
     teacherEmail: "",
-    teacherBirthDate:"",
-    teacherPhone:"",
-    teacherAdress:"",
+    teacherBirthDate: "",
+    teacherPhone: "",
+    teacherAdress: "",
   });
   // update Name
   const handleTeacherNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -39,7 +42,7 @@ const FormDisabledDemo: React.FC = () => {
     }));
   };
 
-  const handleTeacherEmailChange = (event: React.ChangeEvent<HTMLInputElement>)=> {
+  const handleTeacherEmailChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const newTeacherEmail = event.target.value;
     setDataPost((prevData) => ({
       ...prevData,
@@ -53,14 +56,14 @@ const FormDisabledDemo: React.FC = () => {
       teacherBirthDate: newTeacherBirthDate,
     }));
   };
-  const handleTeacherImageChange = (info:any) => {
+  const handleTeacherImageChange = (info: any) => {
     console.log(info.file.name);
     const { fileList } = info;
     setFileList(fileList);
     setDataPost((prevData) => ({
-        ...prevData,
-        teacherImage: info.file.name,
-      }));
+      ...prevData,
+      teacherImage: info.file.name,
+    }));
   };
   const handleTeacherAdressChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const newTeacherAdress = event.target.value;
@@ -76,33 +79,40 @@ const FormDisabledDemo: React.FC = () => {
       ...prevData,
       teacherPhone: newTeacherPhone.toString(),
     }));
-  }; 
-  const [fileList , setFileList] = useState([]);
+  };
+  const [fileList, setFileList] = useState([]);
   const handleRemove = () => {
-    setFileList([]); 
+    setFileList([]);
   };
   const handleSaveClick = async () => {
     console.log(DataPost);
     axios
-      .post("https://localhost:7232/api/Teachers", DataPost)
-      .then((response) => alert("thêm giáo viên thành công"))
+      .post("https://localhost:7232/api/Teachers", DataPost, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`
+        }
+      })
+      .then((response) => {
+        alert("thêm giáo viên thành công")
+        history.push("/Management/TeacherList");
+      })
       .catch((err) => console.log(err));
   };
   const { Content } = Layout;
   const {
-      token: { colorBgContainer },
+    token: { colorBgContainer },
   } = theme.useToken();
   return (
     <>
-      <Layout style={{ padding: "0 24px 24px" }}>
+      <Layout>
         <Content
-            style={{
+          style={{
             padding: "0 24px",
             margin: 0,
             minHeight: 280,
             background: colorBgContainer,
-            }}
-        >      
+          }}
+        >
           <Form
             labelCol={{ span: 4 }}
             wrapperCol={{ span: 14 }}
@@ -110,19 +120,19 @@ const FormDisabledDemo: React.FC = () => {
             style={{ maxWidth: 600 }}
           >
             <Form.Item label="Họ và tên">
-              <Input onBlur={handleTeacherNameChange} placeholder={"Họ và tên học sinh"}/>
+              <Input onBlur={handleTeacherNameChange} placeholder={"Họ và tên học sinh"} />
             </Form.Item>
             <Form.Item label="Email">
-              <Input onBlur={handleTeacherEmailChange} placeholder={"Email giáo viên"}/>
+              <Input onBlur={handleTeacherEmailChange} placeholder={"Email giáo viên"} />
             </Form.Item>
             <Form.Item label="Số điện thoại">
-              <Input onBlur={handleTeacherPhoneChange} placeholder={"Số điện thoại giáo viên"}/>
-            </Form.Item>        
+              <Input onBlur={handleTeacherPhoneChange} placeholder={"Số điện thoại giáo viên"} />
+            </Form.Item>
             <Form.Item label="Địa chỉ">
-              <Input onBlur={handleTeacherAdressChange} placeholder={"Họ và tên học sinh"}/>
+              <Input onBlur={handleTeacherAdressChange} placeholder={"Họ và tên học sinh"} />
             </Form.Item>
             <Form.Item label="Ngày sinh">
-              <DatePicker onBlur={handleTeacherBirthDateChange}  defaultValue={dayjs("2000-01-01", "YYYY-MM-DD")} />
+              <DatePicker onBlur={handleTeacherBirthDateChange} defaultValue={dayjs("2000-01-01", "YYYY-MM-DD")} />
             </Form.Item>
             <Form.Item
               label="Thay đổi ảnh"
@@ -132,9 +142,9 @@ const FormDisabledDemo: React.FC = () => {
             >
               <Upload
                 action="/upload.do"
-                listType="picture-card" 
+                listType="picture-card"
                 fileList={fileList} // Provide the fileList
-                onChange={handleTeacherImageChange} 
+                onChange={handleTeacherImageChange}
                 onRemove={handleRemove} // Add remove handler
               >
                 {fileList.length >= 1 ? null : (
@@ -147,12 +157,12 @@ const FormDisabledDemo: React.FC = () => {
             </Form.Item>
 
             <Button type="primary" block onClick={handleSaveClick}>
-                Add Teacher
-            </Button> 
-          </Form>  
+              Add Teacher
+            </Button>
+          </Form>
         </Content>
-      </Layout> 
-      
+      </Layout>
+
 
     </>
   );

@@ -1,25 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { PlusOutlined } from '@ant-design/icons';
-import {
-  Button,
-  Cascader,
-  Checkbox,
-  DatePicker,
-  Form,
-  Input,
-  InputNumber,
-  Radio,
-  Select,
-  Slider,
-  Switch,
-  TreeSelect,
-  Upload,
-  Col, Row
-} from 'antd';
-
-
-const { RangePicker } = DatePicker;
-const { TextArea } = Input;
+import { Button, Cascader, Checkbox, DatePicker, Form, Input, InputNumber, Radio, Select, Slider, Switch, TreeSelect, Upload, Col, Row } from 'antd';
 
 const normFile = (e: any) => {
   if (Array.isArray(e)) {
@@ -27,10 +8,8 @@ const normFile = (e: any) => {
   }
   return e?.fileList;
 };
-
 const FormDisabledDemo: React.FC = () => {
   const [componentDisabled, setComponentDisabled] = useState<boolean>(false);
-
   return (
     <>
       <Form
@@ -41,10 +20,27 @@ const FormDisabledDemo: React.FC = () => {
         style={{ maxWidth: 600 }}
       >
         <Form.Item label="Họ và tên">
-          <Input value={"Nguyen dinh hiep"} />
+          <Input defaultValue={"Nguyen dinh hiep"} />
         </Form.Item>
         <Form.Item label="Email">
           <Input />
+        </Form.Item>
+        <Form.Item label="Ngày sinh">
+          <DatePicker />
+        </Form.Item>
+        <Form.Item label="Số điện thoại">
+          <Input defaultValue={"Nguyen dinh hiep"} />
+        </Form.Item>
+        <Form.Item label="Địa chỉ">
+          <Input defaultValue={"Nguyen dinh hiep"} />
+        </Form.Item>
+        <Form.Item label="Thay đổi ảnh" valuePropName="fileList" getValueFromEvent={normFile}>
+          <Upload action="/upload.do" listType="picture-card">
+            <div>
+              <PlusOutlined />
+              <div style={{ marginTop: 8 }}>Upload</div>
+            </div>
+          </Upload>
         </Form.Item>
         <Button type="primary" block>
           Cập nhật dữ liệu
@@ -60,4 +56,4 @@ const FormDisabledDemo: React.FC = () => {
   );
 };
 
-export default () => <FormDisabledDemo />;
+export default FormDisabledDemo;

@@ -1,12 +1,13 @@
-import React, {useEffect,useState}  from 'react';
-import { Form, Input, InputNumber, Popconfirm, Table, Typography } from 'antd';
-import axios from 'axios';  
+import React, { useEffect, useState } from 'react';
+import { Form, Button, Input, InputNumber, Popconfirm, Table, Typography } from 'antd';
+import { BrowserRouter as Router, Route, Link } from 'react-router-dom';
+import axios from 'axios';
 import { format } from 'date-fns';
 interface Item {
   semesterId: string; // Make sure you have a unique id for each item in the array
   semesterName: string;
-  semesterDayBegin:Date;
-  semesterDayEnd:Date; 
+  semesterDayBegin: Date;
+  semesterDayEnd: Date;
 }
 interface EditableCellProps extends React.HTMLAttributes<HTMLElement> {
   editing: boolean;
@@ -53,10 +54,10 @@ const EditableCell: React.FC<EditableCellProps> = ({
 };
 
 const App: React.FC = () => {
-  const [form] = Form.useForm(); 
+  const [form] = Form.useForm();
   const [editingid, setEditingid] = useState('');
   const [dataSemester, setdataSemester] = useState<Item[]>([]);
-  const [dataUpdate, setdataUpdate] = React.useState({ Item:{} as Item})
+  const [dataUpdate, setdataUpdate] = React.useState({ Item: {} as Item })
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -65,19 +66,19 @@ const App: React.FC = () => {
         const semestersData = response.data.map((semester: any, index: number) => ({
           semesterId: semester.semesterId,
           semesterName: semester.semesterName,
-          semesterDayBegin:format(new Date( semester.semesterDayBegin), 'yyyy-MM-dd'),
-          semesterDayEnd:format(new Date( semester.semesterDayEnd), 'yyyy-MM-dd'), 
+          semesterDayBegin: format(new Date(semester.semesterDayBegin), 'yyyy-MM-dd'),
+          semesterDayEnd: format(new Date(semester.semesterDayEnd), 'yyyy-MM-dd'),
         }));
         setdataSemester(semestersData);
         console.log('Fetch data successful');
       } catch (error) {
         console.error(error);
-        
+
       }
     };
     fetchData();
- }, [dataUpdate]);
-  const handleDataChange = (newData :Item) => {
+  }, [dataUpdate]);
+  const handleDataChange = (newData: Item) => {
     setdataUpdate(prevData => ({
       ...prevData,
       Item: newData
@@ -86,10 +87,10 @@ const App: React.FC = () => {
   const DeleteID = (record: Partial<Item> & { semesterId: string }) => {
     axios
       .delete(
-        "https://localhost:7232/api/Semesters/" +record.semesterId
+        "https://localhost:7232/api/Semesters/" + record.semesterId
       )
-      .then((response) =>{ 
-        alert("Đã xóa học kì -"+ record.semesterName);
+      .then((response) => {
+        alert("Đã xóa học kì -" + record.semesterName);
         const newDataStudent = dataSemester.filter(item => item.semesterId !== record.semesterId);
         setdataSemester(newDataStudent);
       })
@@ -98,7 +99,7 @@ const App: React.FC = () => {
   const isEditing = (record: Item) => record.semesterId === editingid;
 
   const edit = (record: Partial<Item> & { semesterId: string }) => {
-    form.setFieldsValue({ facultyName: '',  ...record });
+    form.setFieldsValue({ facultyName: '', ...record });
     setEditingid(record.semesterId);
   };
 
@@ -124,13 +125,13 @@ const App: React.FC = () => {
         setEditingid('');
         // xử lý cập nhật dữ liệu
         axios
-        .put(
-          "https://localhost:7232/api/Semesters/" +
+          .put(
+            "https://localhost:7232/api/Semesters/" +
             id,
             newData[index]
-        )
-        .then((response) => console.log(response))
-        .catch((err) => console.log(err));
+          )
+          .then((response) => console.log(response))
+          .catch((err) => console.log(err));
 
         console.log(newData[index]);
       } else {
@@ -147,25 +148,25 @@ const App: React.FC = () => {
     {
       title: 'Tên học kì',
       dataIndex: 'semesterName',
-      width: '20%', 
+      width: '20%',
       editable: true,
     },
     {
       title: 'học kì bắt đầu',
       dataIndex: 'semesterDayBegin',
-      width: '20%', 
+      width: '20%',
       editable: true,
     },
-      {
+    {
       title: 'học kì kết thúc',
       dataIndex: 'semesterDayEnd',
-      width: '20%', 
+      width: '20%',
       editable: true,
     },
     {
       title: 'operation',
       dataIndex: 'operation',
-      width: '15%', 
+      width: '15%',
       render: (_: any, record: Item) => {
         const editable = isEditing(record);
         return editable ? (
@@ -182,7 +183,7 @@ const App: React.FC = () => {
             <Typography.Link disabled={editingid !== ''} onClick={() => edit(record)}>
               Edit
             </Typography.Link>
-            <Typography.Link disabled={editingid !== ''} style={{marginLeft:"20px"}} onClick={() => DeleteID(record)}>
+            <Typography.Link disabled={editingid !== ''} style={{ marginLeft: "20px" }} onClick={() => DeleteID(record)}>
               Delete
             </Typography.Link>
           </>
@@ -208,22 +209,27 @@ const App: React.FC = () => {
   });
 
   return (
-    <Form form={form} component={false}>
-      <Table
-        components={{
-          body: {
-            cell: EditableCell,
-          },
-        }}
-        bordered
-        dataSource={dataSemester}
-        columns={mergedColumns} 
-        rowClassName="editable-row"
-        pagination={{
-          onChange: cancel,
-        }}
-      />
-    </Form>
+    <>
+      <Link to="/Management/SemesterAdd">
+        <Button type="primary" style={{ width: "120px", marginBottom: "20px" }}>Add Semester</Button>
+      </Link>
+      <Form form={form} component={false}>
+        <Table
+          components={{
+            body: {
+              cell: EditableCell,
+            },
+          }}
+          bordered
+          dataSource={dataSemester}
+          columns={mergedColumns}
+          rowClassName="editable-row"
+          pagination={{
+            onChange: cancel,
+          }}
+        />
+      </Form>
+    </>
   );
 };
 

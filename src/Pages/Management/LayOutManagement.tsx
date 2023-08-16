@@ -1,11 +1,11 @@
 import React from "react";
-import { BrowserRouter as Router, Route } from "react-router-dom";
+import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 import NavBar from "../../Components/NavabarAdmin"; // Thay NavBar bằng thành phần NavBar thật của bạn
+import { Layout } from "antd";
 import ManagementIndex from "./ManagementInfo";
 import ManagementPassword from "./ManagementPassword";
 import AddStudent from "./Add/AddStudent";
 import AddTeacher from "./Add/AddTeacher";
-import { Layout } from "antd";
 import AddFaculty from "./Add/AddFaculty";
 import AddSubject from "./Add/AddSubject";
 import AddSemester from "./Add/AddSemester";
@@ -16,55 +16,42 @@ import ListStudent from "./LayOutListStudent";
 import ListTeacher from "./List/ListTeacher";
 import ListSubject from "./List/ListSubject";
 import ListSemester from "./List/ListSemester";
-import ListFaculty from "./List/ListFaculty"; 
-import ListClassLearn from "./List/ListClassLearn"; 
-import ListClass from "./List/ListClass"; 
+import ListFaculty from "./List/ListFaculty";
+import ListClassLearn from "./List/ListClassLearn";
+import ListClass from "./List/ListClass";
 
 function App() {
   return (
-    <Router>
-      <Route
-        render={(props) => (
-          <>
-            <Layout>
-            <NavBar /> 
-            <Layout style={{width:"80%"}}>
+    <Route
+      render={(props) => (
+        <>
+          <Layout>
+            <NavBar />
+            <Layout style={{ width: "80%", padding: "20px 10px 0px 20px" }}>
+              <Switch>
+                <Route path="/Management/ManagementIndex" component={ManagementIndex} />
+                <Route path="/Management/ManagementPassword" exact={false} component={ManagementPassword} />
+                <Route path="/Management/StudentAdd" exact={false} component={AddStudent} />
+                <Route path="/Management/TeacherAdd" exact={false} component={AddTeacher} />
+                <Route path="/Management/FacultyAdd" exact={false} component={AddFaculty} />
+                <Route path="/Management/SubjectAdd" exact={false} component={AddSubject} />
+                <Route path="/Management/SemesterAdd" exact={false} component={AddSemester} />
+                <Route path="/Management/ClassAdd" exact={false} component={AddClass} />
+                <Route path="/Management/ClassLearnAdd" exact={false} component={AddListStudentClass} />
 
-              <Route path="/" exact component={ManagementIndex} />
-              <Route path="/ManagementPassword" exact component={ManagementPassword} />
-              <Route path="/StudentAdd" exact component={AddStudent} />
-              <Route path="/TeacherAdd" exact component={AddTeacher} />
-              <Route path="/FacultyAdd" exact component={AddFaculty} />
-              <Route path="/SubjectAdd" exact component={AddSubject} />
-              <Route path="/SemesterAdd" exact component={AddSemester} />      
-              <Route path="/ClassAdd" exact component={AddClass} />              
-              <Route path="/ClassLearnAdd" exact component={AddListStudentClass} />     
-              
-              <Route path="/StudentList" exact component={ListStudent} />             
-              <Route path="/TeacherList" exact component={ListTeacher} />   
-              <Route path="/SubjectList" exact component={ListSubject} />              
-              <Route path="/FacultyList" exact component={ListFaculty} />              
-              <Route path="/SemesterList" exact component={ListSemester} />     
-              <Route path="/ClassLearnList" exact component={ListClassLearn} />              
-              <Route path="/ClassList" exact component={ListClass} />              
-
-
-
-              {/* <Route path="/ClassLearnAdd" exact component={AddListStudentClass} />              
-              <Route path="/ClassLearnAdd" exact component={AddListStudentClass} />              
-              <Route path="/ClassLearnAdd" exact component={AddListStudentClass} />              
-              <Route path="/ClassLearnAdd" exact component={AddListStudentClass} />              
-              <Route path="/ClassLearnAdd" exact component={AddListStudentClass} />              
-              <Route path="/ClassLearnAdd" exact component={AddListStudentClass} />               */}
+                <Route path="/Management/StudentList" exact={false} component={ListStudent} />
+                <Route path="/Management/TeacherList" exact={false} component={ListTeacher} />
+                <Route path="/Management/SubjectList" exact={false} component={ListSubject} />
+                <Route path="/Management/FacultyList" exact={false} component={ListFaculty} />
+                <Route path="/Management/SemesterList" exact={false} component={ListSemester} />
+                <Route path="/Management/ClassLearnList" exact={false} component={ListClassLearn} />
+                <Route path="/Management/ClassList" exact={false} component={ListClass} />
+              </Switch>
             </Layout>
-                       
-
-
-            </Layout>
-          </>
-        )}
-      />
-    </Router>
+          </Layout>
+        </>
+      )}
+    />
   );
 }
 

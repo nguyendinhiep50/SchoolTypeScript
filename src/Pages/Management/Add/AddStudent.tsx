@@ -1,16 +1,19 @@
-import React, { useState ,useEffect } from 'react'; 
+import React, { useState, useEffect } from 'react';
 import {
   Button,
   DatePicker,
   Form,
   Input,
   Select,
-  Layout,theme
+  Layout, theme
 
 } from 'antd';
-import dayjs from 'dayjs'; 
+import { BrowserRouter as Link, useHistory } from 'react-router-dom';
+import dayjs from 'dayjs';
 import axios from "axios";
 const FormDisabledDemo: React.FC = () => {
+  const accessToken = localStorage.getItem("access_tokenAdmin");
+  const history = useHistory();
   const [form] = Form.useForm();
   interface Faculty {
     facultyId: string;
@@ -19,16 +22,20 @@ const FormDisabledDemo: React.FC = () => {
   }
 
   const [componentDisabled, setComponentDisabled] = useState<boolean>(false);
-  const [dataKH, setDataKH] = useState<Faculty[]>([]); 
-  const [DataPost,setDataPost] = useState({ 
-    studentName:"",
-    studentEmail:"",
+  const [dataKH, setDataKH] = useState<Faculty[]>([]);
+  const [DataPost, setDataPost] = useState({
+    studentName: "",
+    studentEmail: "",
     studentBirthDate: "",
-    facultyId:"",
+    facultyId: "",
   });
   useEffect(() => {
     axios
-      .get("https://localhost:7232/api/Faculties")
+      .get("https://localhost:7232/api/Faculties", {
+        headers: {
+          Authorization: `Bearer ${accessToken}`
+        }
+      })
       .then((response) => {
         setDataKH(response.data);
       })
@@ -37,7 +44,7 @@ const FormDisabledDemo: React.FC = () => {
       });
   }, []);
 
-// update Name
+  // update Name
   const handleStudentNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const newStudentName = event.target.value;
     setDataPost((prevData) => ({
@@ -58,37 +65,46 @@ const FormDisabledDemo: React.FC = () => {
       ...prevData,
       studentBirthDate: newStudentBirthDate,
     }));
-  }; 
+  };
 
-const handleSelectChange = (newFacultyId: string) => { 
-  setDataPost((prevData) => ({
-    ...prevData,
-    facultyId: newFacultyId,
-  }));
-};
+  const handleSelectChange = (newFacultyId: string) => {
+    setDataPost((prevData) => ({
+      ...prevData,
+      facultyId: newFacultyId,
+    }));
+  };
 
   const handleSaveClick = async () => {
     console.log(DataPost);
+    const accessToken = localStorage.getItem("access_tokenAdmin");
     axios
-      .post("https://localhost:7232/api/Students", DataPost)
-      .then((response) => alert("Thêm thành công"))
+      .post("https://localhost:7232/api/Students", DataPost
+        , {
+          headers: {
+            Authorization: `Bearer ${accessToken}`
+          }
+        })
+      .then((response) => {
+        alert("Thêm thành công")
+        history.push("/Management/StudentList");
+      })
       .catch((err) => console.log(err));
   };
   const { Content } = Layout;
   const {
-      token: { colorBgContainer },
+    token: { colorBgContainer },
   } = theme.useToken();
   return (
     <>
-      <Layout style={{ padding: "0 24px 24px" }}>
+      <Layout >
         <Content
-              style={{
-              padding: "0 24px",
-              margin: 0,
-              minHeight: 280,
-              background: colorBgContainer,
-              }}
-          >      
+          style={{
+            padding: "0 24px",
+            margin: 0,
+            minHeight: 280,
+            background: colorBgContainer,
+          }}
+        >
           <Form
             form={form}
             labelCol={{ span: 4 }}
@@ -97,29 +113,29 @@ const handleSelectChange = (newFacultyId: string) => {
             style={{ maxWidth: 600 }}
           >
             <Form.Item name="NameStudent" label="Họ và tên">
-              <Input onBlur={handleStudentNameChange} placeholder={"Họ và tên học sinh"}/>
+              <Input onBlur={handleStudentNameChange} placeholder={"Họ và tên học sinh"} />
             </Form.Item>
             <Form.Item name="EmailStudent" label="Email">
-              <Input onBlur={handleStudentEmailChange}  placeholder={"Email học sinh"} />
+              <Input onBlur={handleStudentEmailChange} placeholder={"Email học sinh"} />
             </Form.Item>
             <Form.Item name="BirthDateStudent" label="Ngày sinh">
-              <DatePicker onBlur={handleStudentBirthDateChange}  defaultValue={dayjs("2000-01-01", "YYYY-MM-DD")} />
-              </Form.Item>
-          <Form.Item name="faculty" label="Khoa">
-            <Select onChange={handleSelectChange}>
-              {dataKH.map((p, index) => (
-                <Select.Option key={p.facultyId} value={p.facultyId}>
-                  {p.facultyName}
-                </Select.Option>
-              ))}
-            </Select>
+              <DatePicker onBlur={handleStudentBirthDateChange} defaultValue={dayjs("2000-01-01", "YYYY-MM-DD")} />
+            </Form.Item>
+            <Form.Item name="faculty" label="Khoa">
+              <Select onChange={handleSelectChange}>
+                {dataKH.map((p, index) => (
+                  <Select.Option key={p.facultyId} value={p.facultyId}>
+                    {p.facultyName}
+                  </Select.Option>
+                ))}
+              </Select>
             </Form.Item>
             <Button type="primary" block onClick={handleSaveClick}>
-                Add Student
-            </Button> 
+              Add Student
+            </Button>
           </Form>
         </Content>
-      </Layout> 
+      </Layout>
     </>
   );
 };

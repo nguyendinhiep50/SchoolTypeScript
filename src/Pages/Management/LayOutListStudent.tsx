@@ -11,6 +11,7 @@ function LayOutListStudent() {
 const [dataKH, setDataKH] = useState<Faculty[]>([]); 
 const [FilterString, setFilterString] = useState(""); 
 
+
   useEffect(() => {
     axios
       .get("https://localhost:7232/api/Faculties")
