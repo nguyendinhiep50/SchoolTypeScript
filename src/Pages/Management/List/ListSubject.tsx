@@ -65,6 +65,7 @@ const EditableCell: React.FC<EditableCellProps> = ({
 };
 
 const App: React.FC = () => {
+  const accessToken = localStorage.getItem("access_tokenAdmin");
   const [form] = Form.useForm();
   const [editingid, setEditingid] = useState('');
   const [dataSubject, setdataSubject] = useState<Item[]>([]);
@@ -72,7 +73,11 @@ const App: React.FC = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get("https://localhost:7232/api/Subjects");
+        const response = await axios.get("https://localhost:7232/api/Subjects", {
+          headers: {
+            Authorization: `Bearer ${accessToken}`
+          }
+        });
         console.log(response.data);
         const SubjectsData = response.data.map((Subject: any, index: number) => ({
           subjectId: Subject.subjectId,
@@ -99,7 +104,11 @@ const App: React.FC = () => {
   const DeleteID = (record: Partial<Item> & { subjectId: string }) => {
     axios
       .delete(
-        "https://localhost:7232/api/Subjects/" + record.subjectId
+        "https://localhost:7232/api/Subjects/" + record.subjectId, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`
+        }
+      }
       )
       .then((response) => {
         alert("Đã xóa môn học này -" + record.subjectName);
@@ -138,9 +147,14 @@ const App: React.FC = () => {
           .put(
             "https://localhost:7232/api/Subjects/" +
             id,
-            newData[index]
+            newData[index], {
+            headers: {
+              Authorization: `Bearer ${accessToken}`
+            }
+          }
           )
-          .then((response) => console.log(response))
+          .then((response) => { alert("cạp nhat thanh cong") })
+
           .catch((err) => console.log(err));
       } else {
         newData.push(row);

@@ -21,7 +21,7 @@ function ManagementStudent() {
             background: colorBgContainer,
           }}
         >
-          <h1>hiển thị</h1>
+          <h1>InfoStudent</h1>
           <Row>
             <Col span={12}>
               <ImageInfomation />

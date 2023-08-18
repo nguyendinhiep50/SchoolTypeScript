@@ -76,6 +76,7 @@ const App: React.FC = () => {
   const accessToken = localStorage.getItem("access_tokenAdmin");
   const [form] = Form.useForm();
   const [editingid, setEditingid] = useState('');
+
   const [dataTeacherId, setdataTeacherId] = useState('');
   const [dataAcademicProgramId, setdataAcademicProgramId] = useState('');
 
@@ -136,6 +137,7 @@ const App: React.FC = () => {
   const isEditing = (record: Item) => record.classLearnsId === editingid;
 
   const edit = (record: Partial<Item> & { classLearnsId: string }) => {
+    form.setFieldsValue({ classLearnName: '', classLearnEnrollment: '' });
     setEditingid(record.classLearnsId);
   };
   const handleDataChange = (newData: any) => {
@@ -190,7 +192,7 @@ const App: React.FC = () => {
             }
           }
           )
-          .then((response) => console.log(response))
+          .then((response) => { alert("cạp nhat thanh cong") })
           .catch((err) => {
             console.log(err)
           });
@@ -305,7 +307,7 @@ const App: React.FC = () => {
       ...col,
       onCell: (record: Item) => ({
         record,
-        inputType: col.dataIndex === 'id' ? 'studentName' : "null",
+        inputType: col.dataIndex === 'id' ? 'classLearnName' : "null",
         dataIndex: col.dataIndex,
         title: col.title,
         editing: isEditing(record),

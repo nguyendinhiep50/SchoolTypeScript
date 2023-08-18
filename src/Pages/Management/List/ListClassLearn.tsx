@@ -54,6 +54,7 @@ const EditableCell: React.FC<EditableCellProps> = ({
 };
 
 const App: React.FC = () => {
+  const accessToken = localStorage.getItem("access_tokenAdmin");
   const [form] = Form.useForm();
   const [editingid, setEditingid] = useState('');
   const [dataFaculty, setdataFaculty] = useState<Item[]>([]);
@@ -88,7 +89,12 @@ const App: React.FC = () => {
   const DeleteID = (record: Partial<Item> & { id: string }) => {
     axios
       .delete(
-        "https://localhost:7232/api/Faculties/" + record.id
+        "https://localhost:7232/api/Faculties/" + record.id,
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`
+          }
+        }
       )
       .then((response) => {
         alert("Đã xóa khoa");
@@ -130,9 +136,14 @@ const App: React.FC = () => {
           .put(
             "https://localhost:7232/api/Faculties/" +
             id,
-            newData[index]
+            newData[index], {
+            headers: {
+              Authorization: `Bearer ${accessToken}`
+            }
+          }
           )
-          .then((response) => console.log(response))
+          .then((response) => { alert("cạp nhat thanh cong") })
+
           .catch((err) => console.log(err));
 
         console.log(newData[index]);

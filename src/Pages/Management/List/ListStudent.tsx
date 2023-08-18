@@ -77,6 +77,7 @@ const EditableCell: React.FC<EditableCellProps> = ({
 };
 
 const App: React.FC<ChildProps> = (props) => {
+  const accessToken = localStorage.getItem("access_tokenAdmin");
   const [form] = Form.useForm();
   const [Pages, setPages] = useState(1);
   const [Size, setSize] = useState(3);
@@ -108,7 +109,11 @@ const App: React.FC<ChildProps> = (props) => {
   useEffect(() => {
     const fetchDataCount = async () => {
       try {
-        const response = await axios.get("https://localhost:7232/api/Students/TakeCountAll");
+        const response = await axios.get("https://localhost:7232/api/Students/TakeCountAll", {
+          headers: {
+            Authorization: `Bearer ${accessToken}`
+          }
+        });
         const value: any = response.data;
         setcountStudent(value);
         console.log('Fetch data successful');
@@ -141,7 +146,11 @@ const App: React.FC<ChildProps> = (props) => {
     };
     const fetchDataFilter = async () => {
       try {
-        const response = await axios.get("https://localhost:7232/api/Students/StudentInFaculty/" + FilterString);
+        const response = await axios.get("https://localhost:7232/api/Students/StudentInFaculty/" + FilterString, {
+          headers: {
+            Authorization: `Bearer ${accessToken}`
+          }
+        });
         console.log(response.data);
         const studentsData = response.data.map((student: any, index: number) => ({
           studentId: student.studentId,
@@ -179,7 +188,12 @@ const App: React.FC<ChildProps> = (props) => {
   const DeleteID = (record: Partial<Item> & { studentId: string }) => {
     axios
       .delete(
-        "https://localhost:7232/api/Students/" + record.studentId
+        "https://localhost:7232/api/Students/" + record.studentId,
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`
+          }
+        }
       )
       .then((response) => {
         alert("Đã xóa học sinh");
@@ -213,9 +227,15 @@ const App: React.FC<ChildProps> = (props) => {
           .put(
             "https://localhost:7232/api/Students/" +
             id,
-            newData[index]
+            newData[index],
+            {
+              headers: {
+                Authorization: `Bearer ${accessToken}`
+              }
+            }
           )
-          .then((response) => console.log(response))
+          .then((response) => { alert("cạp nhat thanh cong") })
+
           .catch((err) => {
             console.log(err)
             console.log(newData[index])

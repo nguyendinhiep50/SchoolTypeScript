@@ -31,9 +31,9 @@ function IndexManagement() {
 
                 try {
                     const response = await axios.get(
-                        "https://localhost:7232/api/Managements/user?stringToken=" +
-                        accessToken
+                        `https://localhost:7232/api/Managements/user?stringToken=${accessToken}`
                     );
+
                     const InfoAccount1 = {
                         managementId: response.data.managementId,
                         managementName: response.data.managementName,
@@ -48,9 +48,10 @@ function IndexManagement() {
             } else {
                 history.push("/");
             }
+
+            setIsLoaded(true);
         };
         fetchUserData();
-        setIsLoaded(true);
     }, []);
     const [isLoaded, setIsLoaded] = useState(false);
     const { Content } = Layout;

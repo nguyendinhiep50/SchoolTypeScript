@@ -179,7 +179,7 @@ const App: React.FC = () => {
             }
           }
           )
-          .then((response) => console.log(response))
+          .then((response) => { alert("cạp nhat thanh cong") })
           .catch((err) => console.log(err));
       } else {
         newData.push(row);
