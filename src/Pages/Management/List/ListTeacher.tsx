@@ -100,7 +100,7 @@ const App: React.FC = () => {
     const accessToken = localStorage.getItem("access_tokenAdmin");
     const fetchData = async () => {
       try {
-        const response = await axios.get("https://localhost:7232/api/Teachers", {
+        const response = await axios.get("https://localhost:7232/api/Teachers?pages=" + 0, {
           headers: {
             Authorization: `Bearer ${accessToken}`
           }

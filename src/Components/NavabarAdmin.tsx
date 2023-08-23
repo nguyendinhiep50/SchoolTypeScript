@@ -59,38 +59,6 @@ const App: React.FC = () => {
   const {
     token: { colorBgContainer },
   } = theme.useToken();
-  const history = useHistory();
-
-  useEffect(() => {
-    const fetchUserData = async () => {
-      // Lấy access token từ localStorage
-      const accessToken = localStorage.getItem("access_tokenAdmin");
-      console.log(accessToken);
-      // Nếu access token tồn tại
-      if (accessToken != null) {
-        // Đính kèm access token vào tiêu đề "Authorization" của yêu cầu
-        axios.defaults.headers.common[
-          "Authorization"
-        ] = `Bearer ${accessToken}`;
-
-        try {
-          // Gửi yêu cầu tới API để lấy thông tin người dùng
-          const response = await axios.get(
-            "https://localhost:7232/api/Managements/user?stringToken=" +
-            accessToken
-          ).catch((err) => {
-            localStorage.removeItem("access_tokenAdmin");
-            history.push("/");
-          });
-        } catch (error) {
-          console.log(error);
-        }
-      } else {
-        history.push("/");
-      }
-    };
-    fetchUserData(); // Gọi hàm fetchUserData để lấy dữ liệu
-  }, []);
   return (
     <Sider collapsible collapsed={collapsed} onCollapse={(value) => setCollapsed(value)}>
       <div className="demo-logo-vertical" />

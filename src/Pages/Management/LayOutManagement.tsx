@@ -27,7 +27,7 @@ function App() {
         <>
           <Layout>
             <NavBar />
-            <Layout style={{ width: "80%", padding: "20px 10px 0px 20px" }}>
+            <Layout style={{ width: "80%", minHeight: "650px", padding: "20px 10px 0px 20px" }}>
               <Switch>
                 <Route path="/Management/ManagementIndex" component={ManagementIndex} />
                 <Route path="/Management/ManagementPassword" exact={false} component={ManagementPassword} />

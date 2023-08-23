@@ -2,15 +2,21 @@ import React, { useState, useEffect } from 'react';
 import { LockOutlined, UserOutlined } from '@ant-design/icons';
 import { Button, Checkbox, Form, Input } from 'antd';
 import { Link, useHistory } from 'react-router-dom'; import axios from "axios";
-
+import jwt_decode from "jwt-decode";
+interface DecodedToken {
+  [claimName: string]: string[]; // Hoặc các kiểu dữ liệu khác tùy thuộc vào claim
+}
 const App: React.FC = () => {
   const onFinish = (values: any) => {
     console.log('Received values of form: ', values);
   };
   const [DataPost, setDataPost] = useState({
-    loginEmail: "",
+    nameLogin: "",
     passWorld: "",
   });
+  const [DataClaim, setDataClaim] = useState("");
+  const [DataToken, setDataToken] = useState("");
+
   const history = useHistory();
   useEffect(() => {
     // check Login 
@@ -33,7 +39,7 @@ const App: React.FC = () => {
       const newPassWorld = event.target.value;
       setDataPost((prevData) => ({
         ...prevData,
-        loginEmail: newPassWorld,
+        nameLogin: newPassWorld,
       }));
     }
   };
@@ -47,49 +53,52 @@ const App: React.FC = () => {
       }));
     }
   };
-  const handleSaveLoginStudent = async () => {
-    console.log(DataPost);
-    try {
-      const response = await axios.post(
-        `https://localhost:7232/api/Students/login`, DataPost
-      );
-      const { token } = response.data;
-
-      // Lưu access token vào localStorage
-      localStorage.setItem("access_tokenStudent", token);
-      history.push("/Student/IndexStudent");
-    } catch (error) {
-      console.error("Đăng nhập thất bại:", error);
-      history.push("/");
+  useEffect(() => {
+    if (DataClaim == "Management") {
+      localStorage.setItem("access_tokenAdmin", DataToken);
+      history.push("/Management/ManagementIndex");
     }
-  };
-  const handleSaveLoginTeacher = async () => {
-    console.log(DataPost);
-    try {
-      const response = await axios.post(
-        `https://localhost:7232/api/Teachers/login`, DataPost
-      );
-      const { token } = response.data;
-
-      // Lưu access token vào localStorage
-      localStorage.setItem("access_tokenTeacher", token);
+    else if (DataClaim == "Teacher") {
+      localStorage.setItem("access_tokenTeacher", DataToken);
       history.push("/Teacher/IndexTeacher");
-    } catch (error) {
-      console.error("Đăng nhập thất bại:", error);
-      history.push("/");
     }
-  };
+    else if (DataClaim == "Student") {
+      localStorage.setItem("access_tokenStudent", DataToken);
+      history.push("/Student/IndexStudent");
+    }
+    else {
+      console.log(DataClaim);
+    }
+  }, [DataClaim]);
+  useEffect(() => {
+    if (DataToken != "") {
+      const decodedToken: DecodedToken = jwt_decode(DataToken);
+      let DataClaimMain: string = "";
+      const roleClaim = decodedToken['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'];
+      for (const rs in roleClaim) {
+        if (roleClaim[rs] === "Management") {
+          const chuoi = roleClaim[rs];
+          DataClaimMain = chuoi;
+        } else if (roleClaim[rs] === "Teacher" && DataClaimMain !== "Management") {
+          const chuoi = roleClaim[rs];
+          DataClaimMain = chuoi;
+        } else if (roleClaim[rs] === "Student" && DataClaimMain !== "Management" && DataClaimMain !== "Teacher") {
+          const chuoi = roleClaim[rs];
+          DataClaimMain = chuoi;
+        }
+      }
+      setDataClaim(DataClaimMain);
+      // Sau khi hoàn thành tất cả các hoạt động trong LoopRole, gọi CheckClaim 
+    }
+  }, [DataToken]);
   const handleSaveLoginAdmin = async () => {
     console.log(DataPost);
     try {
       const response = await axios.post(
-        `https://localhost:7232/api/Managements/login`, DataPost
+        `https://localhost:7232/api/Login/LoginAccount`, DataPost
       );
-      const { token } = response.data;
-
-      // Lưu access token vào localStorage
-      localStorage.setItem("access_tokenAdmin", token);
-      history.push("/Management/ManagementIndex");
+      const token = response.data;
+      setDataToken(token);
     } catch (error) {
       console.error("Đăng nhập thất bại:", error);
       history.push("/");
@@ -137,21 +146,10 @@ const App: React.FC = () => {
         </Form.Item>
 
         <Form.Item>
-          <Button type="primary" htmlType="submit" className="login-form-button">
-            <button onClick={handleSaveLoginAdmin}>
-              <i className="fa fa-shopping-cart"></i> Account Managemnet
-            </button>
-          </Button>
-          <Button type="primary" htmlType="submit" className="login-form-button">
-            <button onClick={handleSaveLoginStudent}>
-              <i className="fa fa-shopping-cart"></i> Account Student
-            </button>
-          </Button>
-          <Button type="primary" htmlType="submit" className="login-form-button">
-            <button onClick={handleSaveLoginTeacher}>
-              <i className="fa fa-shopping-cart"></i> Account Teacher
-            </button>
-          </Button>
+          <button className="btn btn-primary" onClick={handleSaveLoginAdmin}>
+            Login Account
+          </button>
+
           Or <a href="">register now!</a>
         </Form.Item>
       </Form>
