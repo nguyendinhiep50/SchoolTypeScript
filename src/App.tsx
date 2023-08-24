@@ -6,6 +6,9 @@ import LayoutComponentTeacher from "./Pages/Teacher/LayOutTeacher";
 import LogOut from "./Components/LogOut";
 import NotFound from "./Components/NotFound";
 import Login from "./Components/LoginAccount";
+import ForgotPasswordAccoun from "./Components/ForgotPasswordAccoun";
+import RegisterAccount from "./Components/RegisterAccount";
+
 
 function App() {
   return (
@@ -33,6 +36,9 @@ function App() {
       <Route path="/Teacher" component={LayoutComponentTeacher} />
       <Route path="/LogOut" component={LogOut} />
       <Route path="/" exact={true} component={Login} />
+      <Route path="/ForgotPasswordAccount" exact={true} component={ForgotPasswordAccoun} />
+      <Route path="/RegisterAccount" exact={true} component={RegisterAccount} />
+
       <Route component={() => null} />
     </Router>
   );

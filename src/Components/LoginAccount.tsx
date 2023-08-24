@@ -12,7 +12,7 @@ const App: React.FC = () => {
   };
   const [DataPost, setDataPost] = useState({
     nameLogin: "",
-    passWorld: "",
+    passWord: "",
   });
   const [DataClaim, setDataClaim] = useState("");
   const [DataToken, setDataToken] = useState("");
@@ -49,7 +49,7 @@ const App: React.FC = () => {
       const newPassWorld = event.target.value;
       setDataPost((prevData) => ({
         ...prevData,
-        passWorld: newPassWorld,
+        passWord: newPassWorld,
       }));
     }
   };
@@ -75,16 +75,18 @@ const App: React.FC = () => {
       const decodedToken: DecodedToken = jwt_decode(DataToken);
       let DataClaimMain: string = "";
       const roleClaim = decodedToken['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'];
-      for (const rs in roleClaim) {
-        if (roleClaim[rs] === "Management") {
-          const chuoi = roleClaim[rs];
-          DataClaimMain = chuoi;
-        } else if (roleClaim[rs] === "Teacher" && DataClaimMain !== "Management") {
-          const chuoi = roleClaim[rs];
-          DataClaimMain = chuoi;
-        } else if (roleClaim[rs] === "Student" && DataClaimMain !== "Management" && DataClaimMain !== "Teacher") {
-          const chuoi = roleClaim[rs];
-          DataClaimMain = chuoi;
+      if (roleClaim.toString() === "Student") {
+        DataClaimMain = roleClaim.toString();
+      }
+      else {
+        for (const rs in roleClaim) {
+          if (roleClaim[rs] === "Management") {
+            const chuoi = roleClaim[rs];
+            DataClaimMain = chuoi;
+          } else if (roleClaim[rs] === "Teacher" && DataClaimMain !== "Management") {
+            const chuoi = roleClaim[rs];
+            DataClaimMain = chuoi;
+          }
         }
       }
       setDataClaim(DataClaimMain);
@@ -106,7 +108,7 @@ const App: React.FC = () => {
   };
   return (
     <>
-      <h1 style={{ margin: "0px 30%" }}>Login School</h1>
+      <h1 style={{ margin: "0px 30%", textAlign: "center" }}>Login School</h1>
       <Form
         name="normal_login"
         className="login-form"
@@ -139,18 +141,13 @@ const App: React.FC = () => {
           <Form.Item name="remember" valuePropName="checked" noStyle>
             <Checkbox>Remember me</Checkbox>
           </Form.Item>
-
-          <a className="login-form-forgot" href="">
-            Forgot password
-          </a>
+          <Button style={{ padding: "0px" }} href='/ForgotPasswordAccount' type="link">Forgot password</Button>
         </Form.Item>
 
         <Form.Item>
-          <button className="btn btn-primary" onClick={handleSaveLoginAdmin}>
-            Login Account
-          </button>
-
-          Or <a href="">register now!</a>
+          <Button style={{ marginRight: "6px" }} type="primary" onClick={handleSaveLoginAdmin}>Login Account</Button>
+          Or
+          <Button style={{ paddingLeft: "8px" }} href='/RegisterAccount' type="link">register now!</Button>
         </Form.Item>
       </Form>
     </>

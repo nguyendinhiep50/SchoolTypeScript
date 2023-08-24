@@ -3,46 +3,63 @@ import axios from "axios";
 import { LockOutlined, UserOutlined } from '@ant-design/icons';
 import { Button, Form, Input } from 'antd';
 const App: React.FC = () => {
+  const accessToken = localStorage.getItem("access_tokenAdmin");
   const onFinish = (values: any) => {
     console.log('Received values of form: ', values);
   };
   const [DataPost, setDataPost] = useState({
-    loginEmail: "",
-    passWorld: "",
+    loginName: "",
+    passWord: "",
+    passWordNew: ""
   });
-  const [newPassword, setnewPassword] = useState('');
-  const handleChangePass = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const newdataPass = event.target.value;
-    setnewPassword(newdataPass);
-  };
-  const handleNewPassword = async () => {
+  // const [newPassword, setnewPassword] = useState('');
+  // const handleChangePass = (event: React.ChangeEvent<HTMLInputElement>) => {
+  //   const newdataPass = event.target.value;
+  //   setnewPassword(newdataPass);
+  // };
+  const handleUpdatePassword = async () => {
+    console.log(DataPost);
     axios
       .put(
-        "https://localhost:7232/api/Managements/ChangePassword?newpassword=" + newPassword,
-        DataPost
+        "https://localhost:7232/api/Login/UpdateUser",
+        DataPost, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`
+        }
+      }
       )
       .then((response) => { alert("ChangePassword Succes") })
       .catch((err) => {
-        alert("Fail Changepassword");
+        alert(err);
       });
   };
-  const handleLoginEmail = (event: React.ChangeEvent<HTMLInputElement> | undefined) => {
+  const handleLoginName = (event: React.ChangeEvent<HTMLInputElement> | undefined) => {
     // Sử dụng React.ChangeEvent<HTMLInputElement> để chỉ định kiểu dữ liệu cho event
     if (event) {
-      const newPassWorld = event.target.value;
+      const LoginName = event.target.value;
       setDataPost((prevData) => ({
         ...prevData,
-        loginEmail: newPassWorld,
+        loginName: LoginName,
       }));
     }
   };
-  const handlePassWorld = (event: React.ChangeEvent<HTMLInputElement> | undefined) => {
+  const handlePassWord = (event: React.ChangeEvent<HTMLInputElement> | undefined) => {
     // Sử dụng React.ChangeEvent<HTMLInputElement> để chỉ định kiểu dữ liệu cho event
     if (event) {
-      const newPassWorld = event.target.value;
+      const LoginPassWord = event.target.value;
       setDataPost((prevData) => ({
         ...prevData,
-        passWorld: newPassWorld,
+        passWord: LoginPassWord,
+      }));
+    }
+  };
+  const handleNewPassWord = (event: React.ChangeEvent<HTMLInputElement> | undefined) => {
+    // Sử dụng React.ChangeEvent<HTMLInputElement> để chỉ định kiểu dữ liệu cho event
+    if (event) {
+      const NewPassWord = event.target.value;
+      setDataPost((prevData) => ({
+        ...prevData,
+        passWordNew: NewPassWord,
       }));
     }
   };
@@ -59,7 +76,7 @@ const App: React.FC = () => {
           name="username"
           rules={[{ required: true, message: 'Please input your Username!' }]}
         >
-          <Input prefix={<UserOutlined className="site-form-item-icon" />} onBlur={handleLoginEmail} placeholder="Username" />
+          <Input prefix={<UserOutlined className="site-form-item-icon" />} onBlur={handleLoginName} placeholder="Username" />
         </Form.Item>
         <Form.Item
           name="password"
@@ -69,7 +86,7 @@ const App: React.FC = () => {
             prefix={<LockOutlined className="site-form-item-icon" />}
             type="password"
             placeholder="Password"
-            onBlur={handlePassWorld}
+            onBlur={handlePassWord}
           />
         </Form.Item>
         <Form.Item
@@ -80,12 +97,12 @@ const App: React.FC = () => {
             prefix={<LockOutlined className="site-form-item-icon" />}
             type="password"
             placeholder="New password"
-            onBlur={handleChangePass}
+            onBlur={handleNewPassWord}
           />
         </Form.Item>
         <Form.Item>
-          <Button type="primary" onClick={handleNewPassword}  >
-            Update Password
+          <Button type="primary" onClick={handleUpdatePassword}  >
+            Change Password
           </Button>
 
         </Form.Item>

@@ -62,7 +62,7 @@ const App: React.FC = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get("https://localhost:7232/api/Semesters", {
+        const response = await axios.get("https://localhost:7232/api/Semesters/GetSemesters?pages=0", {
           headers: {
             Authorization: `Bearer ${accessToken}`
           }
