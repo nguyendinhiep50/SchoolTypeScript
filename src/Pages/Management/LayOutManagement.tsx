@@ -11,6 +11,8 @@ import AddSubject from "./Add/AddSubject";
 import AddSemester from "./Add/AddSemester";
 import AddClass from "./Add/AddClass";
 import AddListStudentClass from "./Add/AddListStudentClass";
+import AddRole from "./Add/AddRole";
+
 
 import ListStudent from "./LayOutListStudent";
 import ListTeacher from "./List/ListTeacher";
@@ -38,6 +40,8 @@ function App() {
                 <Route path="/Management/SemesterAdd" exact={false} component={AddSemester} />
                 <Route path="/Management/ClassAdd" exact={false} component={AddClass} />
                 <Route path="/Management/ClassLearnAdd" exact={false} component={AddListStudentClass} />
+                <Route path="/Management/AddRole" exact={false} component={AddRole} />
+
 
                 <Route path="/Management/StudentList" exact={false} component={ListStudent} />
                 <Route path="/Management/TeacherList" exact={false} component={ListTeacher} />

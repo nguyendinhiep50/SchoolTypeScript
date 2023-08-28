@@ -1,79 +1,47 @@
 import React, { useEffect, useState } from 'react';
-import { Form, Input, Button, InputNumber, Popconfirm, Table, Typography } from 'antd';
+import { Form, Input, Button, InputNumber, Popconfirm, Table, Typography, Pagination } from 'antd';
 import { BrowserRouter as Router, Route, Link } from 'react-router-dom';
-import axios from 'axios';
-import { format } from 'date-fns';
-interface Item {
-  facultyId: string; // Make sure you have a unique id for each item in the array
-  facultyName: string;
-}
-
-
-interface EditableCellProps extends React.HTMLAttributes<HTMLElement> {
-  editing: boolean;
-  dataIndex: string;
-  title: any;
-  inputType: 'number' | 'text';
-  record: Item;
-  index: number;
-  children: React.ReactNode;
-}
-
-const EditableCell: React.FC<EditableCellProps> = ({
-  editing,
-  dataIndex,
-  title,
-  inputType,
-  record,
-  index,
-  children,
-  ...restProps
-}) => {
-  const inputNode = inputType === 'number' ? <InputNumber /> : <Input />;
-
-  return (
-    <td {...restProps}>
-      {editing ? (
-        <Form.Item
-          name={dataIndex}
-          style={{ margin: 0 }}
-          rules={[
-            {
-              required: true,
-              message: `Please Input ${title}!`,
-            },
-          ]}
-        >
-          {inputNode}
-        </Form.Item>
-      ) : (
-        children
-      )}
-    </td>
-  );
-};
-
+import { PagesAndSize } from '../../../services/types';
+import { Item, EditableCell } from '../../../InterFace/IFaculty'
+import { GetListFacultyPage, CountFaculty, DeleteFaculty, UpdateFaculty } from '../../../services/APIFaculty';
 const App: React.FC = () => {
   const accessToken = localStorage.getItem("access_tokenAdmin");
   const [form] = Form.useForm();
+  const [Size, setSize] = useState(3);
+  const [Pageschange, setPageschange] = useState(1);
   const [editingid, setEditingid] = useState('');
   const [dataFaculty, setdataFaculty] = useState<Item[]>([]);
   const [dataUpdate, setdataUpdate] = React.useState({ Item: {} as Item })
+  const [countSubject, setcountSubject] = useState(1);
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get("https://localhost:7232/api/Faculties", {
-          headers: {
-            Authorization: `Bearer ${accessToken}`
-          }
-        });
-        console.log(response.data);
-        const facultysData = response.data.map((faculty: any, index: number) => ({
-          facultyId: faculty.facultyId,
-          facultyName: faculty.facultyName,
-        }));
-        setdataFaculty(facultysData);
+        const response = await CountFaculty();
+        const value: any = response;
+        setcountSubject(value.data);
         console.log('Fetch data successful');
+      } catch (error) {
+        console.error(error);
+      }
+    };
+    fetchData();
+  }, []);
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const pagesAndSize: PagesAndSize = { pages: Pageschange, size: 3 };
+        const FacultyList = await GetListFacultyPage(pagesAndSize);
+        if (typeof FacultyList === 'undefined') {
+          console.log('studentList is of type void');
+        } else {
+          console.log(FacultyList.data);
+          const facultysData = FacultyList.data.map((faculty: any, index: number) => ({
+            facultyId: faculty.facultyId,
+            facultyName: faculty.facultyName,
+          }));
+          setdataFaculty(facultysData);
+        }
+
       } catch (error) {
         console.error(error);
 
@@ -82,28 +50,15 @@ const App: React.FC = () => {
 
     fetchData();
 
-  }, [dataUpdate]);
-  const handleDataChange = (newData: Item) => {
-    setdataUpdate(prevData => ({
-      ...prevData,
-      Item: newData
-    }));
-  };
+  }, [dataUpdate, Pageschange]);
   const DeleteID = (record: Partial<Item> & { facultyId: string }) => {
-    axios
-      .delete(
-        "https://localhost:7232/api/Faculties/" + record.facultyId, {
-        headers: {
-          Authorization: `Bearer ${accessToken}`
-        }
-      }
-      )
-      .then((response) => {
-        alert("Đã xóa khoa");
-        const newdataFaculty = dataFaculty.filter(item => item.facultyId !== record.facultyId);
-        setdataFaculty(newdataFaculty);
-      })
-      .catch((err) => console.log(err));
+    const bienxoa = DeleteFaculty(record.facultyId);
+    if (typeof bienxoa === 'undefined') {
+      console.log('FacultyList is of type void');
+    } else {
+      const newDataFaculty = dataFaculty.filter(item => item.facultyId !== record.facultyId);
+      setdataFaculty(newDataFaculty);
+    }
   };
 
   const isEditing = (record: Item) => record.facultyId === editingid;
@@ -134,21 +89,11 @@ const App: React.FC = () => {
         setdataFaculty(newData);
         setEditingid('');
         // xử lý cập nhật dữ liệu
-        axios
-          .put(
-            "https://localhost:7232/api/Faculties/" +
-            id,
-            newData[index], {
-            headers: {
-              Authorization: `Bearer ${accessToken}`
-            }
-          }
-          )
-          .then((response) => { alert("cạp nhat thanh cong") })
-
-          .catch((err) => console.log(err));
-
-        console.log(newData[index]);
+        const update = UpdateFaculty(newData[index], id);
+        if (typeof update === 'undefined') {
+          setEditingid('');
+          console.log('Validate Failed');
+        }
       } else {
         newData.push(row);
         setdataFaculty(newData);
@@ -158,7 +103,10 @@ const App: React.FC = () => {
       console.log('Validate Failed:', errInfo);
     }
   };
-
+  const handleChanegPages = (newPages: number) => {
+    console.log(newPages);
+    setPageschange(newPages);
+  };
   const columns = [
     {
       title: 'Tên khoa',
@@ -224,14 +172,15 @@ const App: React.FC = () => {
               cell: EditableCell,
             },
           }}
+          pagination={false}
           bordered
           dataSource={dataFaculty}
           columns={mergedColumns}
           rowClassName="editable-row"
-          pagination={{
-            onChange: cancel,
-          }}
+
         />
+        <Pagination defaultCurrent={1} defaultPageSize={Size} onChange={handleChanegPages} total={countSubject.valueOf()} />
+
       </Form>
     </>
   );

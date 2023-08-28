@@ -1,109 +1,70 @@
 import React, { useEffect, useState } from 'react';
-import { Form, Button, Input, InputNumber, Popconfirm, Table, Typography } from 'antd';
+import { Form, Button, Input, Pagination, Popconfirm, Table, Typography } from 'antd';
 import { BrowserRouter as Router, Route, Link } from 'react-router-dom';
-import axios from 'axios';
+import { Item, EditableCell } from '../../../InterFace/ISemester'
 import { format } from 'date-fns';
-interface Item {
-  semesterId: string; // Make sure you have a unique id for each item in the array
-  semesterName: string;
-  semesterDayBegin: Date;
-  semesterDayEnd: Date;
-}
-interface EditableCellProps extends React.HTMLAttributes<HTMLElement> {
-  editing: boolean;
-  dataIndex: string;
-  title: any;
-  inputType: 'number' | 'text';
-  record: Item;
-  index: number;
-  children: React.ReactNode;
-}
-
-const EditableCell: React.FC<EditableCellProps> = ({
-  editing,
-  dataIndex,
-  title,
-  inputType,
-  record,
-  index,
-  children,
-  ...restProps
-}) => {
-  const inputNode = inputType === 'number' ? <InputNumber /> : <Input />;
-
-  return (
-    <td {...restProps}>
-      {editing ? (
-        <Form.Item
-          name={dataIndex}
-          style={{ margin: 0 }}
-          rules={[
-            {
-              required: true,
-              message: `Please Input ${title}!`,
-            },
-          ]}
-        >
-          {inputNode}
-        </Form.Item>
-      ) : (
-        children
-      )}
-    </td>
-  );
-};
+import { GetListSemesterPage, CountSemesters, DeleteSemester, UpdateSemester } from '../../../services/APISemester';
+import { PagesAndSize } from '../../../services/types'
 
 const App: React.FC = () => {
   const accessToken = localStorage.getItem("access_tokenAdmin");
   const [form] = Form.useForm();
-  const [editingid, setEditingid] = useState('');
+  const [Pageschange, setPageschange] = useState(1);
+  const [Size, setSize] = useState(3); const [editingid, setEditingid] = useState('');
   const [dataSemester, setdataSemester] = useState<Item[]>([]);
   const [dataUpdate, setdataUpdate] = React.useState({ Item: {} as Item })
+  const [CountSemester, setCountSemesters] = useState(0);
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get("https://localhost:7232/api/Semesters/GetSemesters?pages=0", {
-          headers: {
-            Authorization: `Bearer ${accessToken}`
-          }
-        });
-        console.log(response.data);
-        const semestersData = response.data.map((semester: any, index: number) => ({
-          semesterId: semester.semesterId,
-          semesterName: semester.semesterName,
-          semesterDayBegin: format(new Date(semester.semesterDayBegin), 'yyyy-MM-dd'),
-          semesterDayEnd: format(new Date(semester.semesterDayEnd), 'yyyy-MM-dd'),
-        }));
-        setdataSemester(semestersData);
+        const response = await CountSemesters();
+        const value: any = response;
+        setCountSemesters(value.data);
         console.log('Fetch data successful');
+      } catch (error) {
+        console.error(error);
+      }
+    };
+    fetchData();
+  }, []);
+  useEffect(() => {
+    const pagesAndSize: PagesAndSize = { pages: Pageschange, size: 3 };
+    const fetchData = async () => {
+      try {
+        const response = await GetListSemesterPage(pagesAndSize);
+        if (typeof response === 'undefined') {
+          console.log('studentList is of type void');
+        } else {
+          console.log(response.data);
+          const semestersData = response.data.map((semester: any, index: number) => ({
+            semesterId: semester.semesterId,
+            semesterName: semester.semesterName,
+            semesterDayBegin: format(new Date(semester.semesterDayBegin), 'yyyy-MM-dd'),
+            semesterDayEnd: format(new Date(semester.semesterDayEnd), 'yyyy-MM-dd'),
+          }));
+          setdataSemester(semestersData);
+        }
       } catch (error) {
         console.error(error);
 
       }
     };
     fetchData();
-  }, [dataUpdate]);
-  const handleDataChange = (newData: Item) => {
+  }, [dataUpdate, Pageschange]);
+  const handleDataChange = (newData: any) => {
     setdataUpdate(prevData => ({
       ...prevData,
       Item: newData
     }));
   };
   const DeleteID = (record: Partial<Item> & { semesterId: string }) => {
-    axios
-      .delete(
-        "https://localhost:7232/api/Semesters/" + record.semesterId, {
-        headers: {
-          Authorization: `Bearer ${accessToken}`
-        }
-      }
-      )
-      .then((response) => {
-        alert("Đã xóa học kì -" + record.semesterName);
-        const newDataStudent = dataSemester.filter(item => item.semesterId !== record.semesterId);
-        setdataSemester(newDataStudent);
-      })
-      .catch((err) => console.log(err));
+    const bienxoa = DeleteSemester(record.semesterId);
+    if (typeof bienxoa === 'undefined') {
+      console.log('SemesterList is of type void');
+    } else {
+      const newDataSemester = dataSemester.filter(item => item.semesterId !== record.semesterId);
+      handleDataChange(newDataSemester);
+    }
   };
   const isEditing = (record: Item) => record.semesterId === editingid;
 
@@ -115,7 +76,10 @@ const App: React.FC = () => {
   const cancel = () => {
     setEditingid('');
   };
-
+  const handleChanegPages = (newPages: number) => {
+    console.log(newPages);
+    setPageschange(newPages);
+  };
   const save = async (id: string) => {
     try {
       const row = (await form.validateFields()) as Item;
@@ -133,21 +97,13 @@ const App: React.FC = () => {
         setdataSemester(newData);
         setEditingid('');
         // xử lý cập nhật dữ liệu
-        axios
-          .put(
-            "https://localhost:7232/api/Semesters/" +
-            id,
-            newData[index], {
-            headers: {
-              Authorization: `Bearer ${accessToken}`
-            }
-          }
-          )
-          .then((response) => { alert("cạp nhat thanh cong") })
-
-          .catch((err) => console.log(err));
-
-        console.log(newData[index]);
+        const update = await UpdateSemester(row, id);
+        if (typeof update === 'undefined') {
+          setEditingid('');
+          return;
+        }
+        setdataSemester(newData);
+        setEditingid('');
       } else {
         newData.push(row);
         setdataSemester(newData);
@@ -234,15 +190,14 @@ const App: React.FC = () => {
               cell: EditableCell,
             },
           }}
+          pagination={false}
           bordered
           dataSource={dataSemester}
           columns={mergedColumns}
           rowClassName="editable-row"
-          pagination={{
-            onChange: cancel,
-          }}
         />
       </Form>
+      <Pagination defaultCurrent={1} defaultPageSize={Size} onChange={handleChanegPages} total={CountSemester.valueOf()} />
     </>
   );
 };

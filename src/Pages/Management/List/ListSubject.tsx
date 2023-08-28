@@ -1,92 +1,50 @@
 import React, { useEffect, useState, ReactNode } from 'react';
-import { Form, Button, Input, InputNumber, Popconfirm, Table, Typography } from 'antd';
+import { Form, Button, Pagination, Popconfirm, Table, Typography } from 'antd';
 import { BrowserRouter as Router, Route, Link } from 'react-router-dom';
-
+import { PagesAndSize } from '../../../services/types'
 import axios from 'axios';
 import { format } from 'date-fns';
-interface Item {
-  subjectId: string; // Make sure you have a unique id for each item in the array
-  subjectName: string;
-  subjectCredit: number;
-  subjectMandatory: boolean;
-}
-interface EditableCellProps extends React.HTMLAttributes<HTMLElement> {
-  editing: boolean;
-  dataIndex: string;
-  title: any;
-  inputType: 'number' | 'text';
-  record: Item;
-  index: number;
-  children: React.ReactNode;
-}
-interface ShowColumns {
-  title: string;
-  dataIndex: string;
-  width: string;
-  fixed: string;
-  render?: RenderFunction | RenderWithCellFunction;
-}
-
-type RenderFunction = (value: any, record: Item, index: number) => ReactNode;
-type RenderWithCellFunction = (value: any, record: Item, index: number) => ReactNode;
-
-const EditableCell: React.FC<EditableCellProps> = ({
-  editing,
-  dataIndex,
-  title,
-  inputType,
-  record,
-  index,
-  children,
-  ...restProps
-}) => {
-  const inputNode = inputType === 'number' ? <InputNumber /> : <Input />;
-
-  return (
-    <td {...restProps}>
-      {editing ? (
-        <Form.Item
-          name={dataIndex}
-          style={{ margin: 0 }}
-          rules={[
-            {
-              required: true,
-              message: `Please Input ${title}!`,
-            },
-          ]}
-        >
-          {inputNode}
-        </Form.Item>
-      ) : (
-        children
-      )}
-    </td>
-  );
-};
+import { Item, EditableCellProps, ShowColumns, EditableCell } from "../../../InterFace/ISubject";
+import { GetListSubjectPage, CountSubjects, DeleteSubject, UpdateSubject } from '../../../services/APISubject';
 
 const App: React.FC = () => {
-  const accessToken = localStorage.getItem("access_tokenAdmin");
   const [form] = Form.useForm();
+  const [Pageschange, setPageschange] = useState(1);
   const [editingid, setEditingid] = useState('');
   const [dataSubject, setdataSubject] = useState<Item[]>([]);
   const [dataUpdate, setdataUpdate] = React.useState({ Item: {} as Item })
+  const [countSubject, setcountSubject] = useState(0);
+  const [Size, setSize] = useState(3);
+
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get("https://localhost:7232/api/Subjects", {
-          headers: {
-            Authorization: `Bearer ${accessToken}`
-          }
-        });
-        console.log(response.data);
-        const SubjectsData = response.data.map((Subject: any, index: number) => ({
-          subjectId: Subject.subjectId,
-          subjectName: Subject.subjectName,
-          subjectCredit: Subject.subjectCredit,
-          subjectMandatory: Subject.subjectMandatory === true ? "true" : "false",
-        }));
-        setdataSubject(SubjectsData);
+        const response = await CountSubjects();
+        const value: any = response;
+        setcountSubject(value.data);
         console.log('Fetch data successful');
+      } catch (error) {
+        console.error(error);
+      }
+    };
+    fetchData();
+  }, []);
+  useEffect(() => {
+    const fetchData = async () => {
+      const pagesAndSize: PagesAndSize = { pages: Pageschange, size: 3 };
+      try {
+        const response = await GetListSubjectPage(pagesAndSize);
+        if (typeof response === 'undefined') {
+          console.log('SubjectList is of type void');
+        } else {
+          const SubjectsData = response.data.map((Subject: any, index: number) => ({
+            subjectId: Subject.subjectId,
+            subjectName: Subject.subjectName,
+            subjectCredit: Subject.subjectCredit,
+            subjectMandatory: Subject.subjectMandatory === true ? "true" : "false",
+          }));
+          setdataSubject(SubjectsData);
+        }
       } catch (error) {
         console.error(error);
 
@@ -94,28 +52,22 @@ const App: React.FC = () => {
     };
 
     fetchData();
-  }, [dataUpdate]);
-  const handleDataChange = (newData: Item) => {
-    setdataUpdate(prevData => ({
-      ...prevData,
-      Item: newData
-    }));
-  };
+  }, [dataUpdate, Pageschange]);
+  // const handleDataChange = (newData: Item) => {
+  //   setdataUpdate(prevData => ({
+  //     ...prevData,
+  //     Item: newData
+  //   }));
+  // };
   const DeleteID = (record: Partial<Item> & { subjectId: string }) => {
-    axios
-      .delete(
-        "https://localhost:7232/api/Subjects/" + record.subjectId, {
-        headers: {
-          Authorization: `Bearer ${accessToken}`
-        }
-      }
-      )
-      .then((response) => {
-        alert("Đã xóa môn học này -" + record.subjectName);
-        const newDataStudent = dataSubject.filter(item => item.subjectId !== record.subjectId);
-        setdataSubject(newDataStudent);
-      })
-      .catch((err) => console.log(err));
+    const bienxoa = DeleteSubject(record.subjectId);
+    if (typeof bienxoa === 'undefined') {
+      console.log('SubjectList is of type void');
+    } else {
+      const newDataSubject = dataSubject.filter(item => item.subjectId !== record.subjectId);
+      setdataSubject(newDataSubject);
+    }
+
   };
 
   const isEditing = (record: Item) => record.subjectId === editingid;
@@ -143,19 +95,11 @@ const App: React.FC = () => {
         newData.splice(index, 1, row);
         setdataSubject(newData);
         setEditingid('');
-        axios
-          .put(
-            "https://localhost:7232/api/Subjects/" +
-            id,
-            newData[index], {
-            headers: {
-              Authorization: `Bearer ${accessToken}`
-            }
-          }
-          )
-          .then((response) => { alert("cạp nhat thanh cong") })
-
-          .catch((err) => console.log(err));
+        const update = UpdateSubject(newData[index], id);
+        if (typeof update === 'undefined') {
+          setEditingid('');
+          console.log('Validate Failed');
+        }
       } else {
         newData.push(row);
         setdataSubject(newData);
@@ -165,7 +109,10 @@ const App: React.FC = () => {
       console.log('Validate Failed:', errInfo);
     }
   };
-
+  const handleChanegPages = (newPages: number) => {
+    console.log(newPages);
+    setPageschange(newPages);
+  };
   const columns = [
     {
       title: 'Tên môn',
@@ -251,6 +198,7 @@ const App: React.FC = () => {
             onChange: cancel,
           }}
         />
+        <Pagination defaultCurrent={1} defaultPageSize={Size} onChange={handleChanegPages} total={countSubject.valueOf()} />
       </Form>
     </>
   );

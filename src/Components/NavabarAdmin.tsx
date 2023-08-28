@@ -41,11 +41,12 @@ const items: MenuItem[] = [
     getItem('Infomation', '1', null, "/Management/ManagementIndex"),
     getItem('PassWord', '2', null, "/Management/ManagementPassword"),
   ]),
-  getItem('Management User List', 'UserList', <UsergroupAddOutlined />, "/", [
+  getItem('User List', 'UserList', <UsergroupAddOutlined />, "/", [
     getItem('Student List', '5', null, "/Management/StudentList"),
-    getItem('Teacher List', '6', null, "/Management/TeacherList")
+    getItem('Teacher List', '6', null, "/Management/TeacherList"),
+    getItem('Add Role', '7', null, "/Management/AddRole"),
   ]),
-  getItem('Management School List', 'SchooldList', <OrderedListOutlined />, "/", [
+  getItem('School List', 'SchooldList', <OrderedListOutlined />, "/", [
     getItem('Subject List', '12', null, "/Management/SubjectList"),
     getItem('Class List', '13', null, "/Management/ClassList"),
     getItem('ClassLearn List', '14', null, "/Management/ClassLearnList"),

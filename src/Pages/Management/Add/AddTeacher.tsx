@@ -119,8 +119,8 @@ const FormDisabledDemo: React.FC = () => {
             layout="horizontal"
             style={{ maxWidth: 600 }}
           >
-            <Form.Item label="Họ và tên">
-              <Input onBlur={handleTeacherNameChange} placeholder={"Họ và tên học sinh"} />
+            <Form.Item label="Name Account">
+              <Input onBlur={handleTeacherNameChange} placeholder={"Name Account"} />
             </Form.Item>
             <Form.Item label="Email">
               <Input onBlur={handleTeacherEmailChange} placeholder={"Email giáo viên"} />

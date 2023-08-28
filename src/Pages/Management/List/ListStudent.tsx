@@ -1,85 +1,16 @@
 import React, { useEffect, useState, ReactNode } from 'react';
-import { Form, Button, Input, InputNumber, Table, Typography, Popconfirm, Select, Pagination } from 'antd';
+import { Form, Button, Table, Typography, Popconfirm, Select, Pagination } from 'antd';
 import axios from 'axios';
 import { BrowserRouter as Router, Route, Link } from 'react-router-dom';
 import { format } from 'date-fns';
-import Item from 'antd/es/list/Item';
-interface Item {
-  studentId: string; // Make sure you have a unique id for each item in the array
-  studentName: string;
-  studentImage: string;
-  studentBirthDate: Date;
-  facultyName: string;
-  facultyId: string;
-
-}
-interface Faculty {
-  facultyId: string;
-  facultyName: string;
-  // Add other properties if applicable
-}
-
-interface ChildProps {
-  dataKH: Faculty[];
-  FilterString: any;
-}
-interface EditableCellProps extends React.HTMLAttributes<HTMLElement> {
-  editing: boolean;
-  dataIndex: string;
-  title: any;
-  inputType: 'number' | 'text';
-  record: Item;
-  index: number;
-  children: React.ReactNode;
-}
-
-interface ShowColumns {
-  title: string;
-  dataIndex: string;
-  width: string;
-  editable: boolean;
-  render?: RenderFunction | RenderWithCellFunction;
-}
-type RenderFunction = (value: any, record: Item, index: number) => ReactNode;
-type RenderWithCellFunction = (value: any, record: Item, index: number) => ReactNode;
-const EditableCell: React.FC<EditableCellProps> = ({
-  editing,
-  dataIndex,
-  title,
-  inputType,
-  record,
-  index,
-  children,
-  ...restProps
-}) => {
-  const inputNode = inputType === 'number' ? <InputNumber /> : <Input />;
-
-  return (
-    <td {...restProps}>
-      {editing ? (
-        <Form.Item
-          name={dataIndex}
-          style={{ margin: 0 }}
-          rules={[
-            {
-              required: true,
-              message: `Please Input ${title}!`,
-            },
-          ]}
-        >
-          {inputNode}
-        </Form.Item>
-      ) : (
-        children
-      )}
-    </td>
-  );
-};
+// import Item from 'antd/es/list/Item';
+import { GetListStudentPage, CountStudents, DeleteStudent, UpdateStudent } from '../../../services/APIStudent';
+import { Item, ChildProps, ShowColumns, EditableCell } from "../../../InterFace/IStudent";
+import { PagesAndSize } from '../../../services/types';
 
 const App: React.FC<ChildProps> = (props) => {
-  const accessToken = localStorage.getItem("access_tokenAdmin");
   const [form] = Form.useForm();
-  const [Pages, setPages] = useState(1);
+  const [Pageschange, setPageschange] = useState(1);
   const [Size, setSize] = useState(3);
   const [countStudent, setcountStudent] = useState(0);
   const [editingid, setEditingid] = useState('');
@@ -89,89 +20,42 @@ const App: React.FC<ChildProps> = (props) => {
   const [dataStudent, setDataStudent] = useState<Item[]>([]);
   const [dataUpdate, setdataUpdate] = React.useState({ Item: {} as Item })
   useEffect(() => {
-    const accessToken = localStorage.getItem("access_tokenAdmin");
-    const fetchData = async () => {
-      try {
-        const response = await axios.get("https://localhost:7232/api/Students/TakeCountAll", {
-          headers: {
-            Authorization: `Bearer ${accessToken}`
-          }
-        });
-        const value: any = response.data;
-        setcountStudent(value);
-        console.log('Fetch data successful');
-      } catch (error) {
-        console.error(error);
-      }
-    };
-    fetchData();
-  }, []);
-  useEffect(() => {
     const fetchDataCount = async () => {
       try {
-        const response = await axios.get("https://localhost:7232/api/Students/TakeCountAll", {
-          headers: {
-            Authorization: `Bearer ${accessToken}`
-          }
-        });
-        const value: any = response.data;
-        setcountStudent(value);
+        const response = await CountStudents();
+        console.log(response);
+        const value: any = response;
+        setcountStudent(value.data);
         console.log('Fetch data successful');
       } catch (error) {
         console.error(error);
       }
     };
     fetchDataCount();
-    const accessToken = localStorage.getItem("access_tokenAdmin");
     const fetchData = async () => {
       try {
-        const response = await axios.get("https://localhost:7232/api/Students/TakeNameFaculty?pages="
-          + Pages + "&size=" + Size, {
-          headers: {
-            Authorization: `Bearer ${accessToken}`
-          }
-        });
-        const studentsData = response.data.map((student: any, index: number) => ({
-          studentId: student.studentId,
-          studentName: student.studentName,
-          studentImage: student.studentImage,
-          studentBirthDate: format(new Date(student.studentBirthDate), 'yyyy-MM-dd'),
-          facultyName: student.facultyName,
-        }));
-        setDataStudent(studentsData);
+        const pagesAndSize: PagesAndSize = { pages: Pageschange, size: 3 };
+        const studentList = await GetListStudentPage(pagesAndSize);
+        if (typeof studentList === 'undefined') {
+          console.log('studentList is of type void');
+        } else {
+          const studentsData = studentList.data.map((student: any, index: number) => ({
+            studentId: student.studentId,
+            studentName: student.studentName,
+            studentImage: student.studentImage,
+            studentBirthDate: format(new Date(student.studentBirthDate), 'yyyy-MM-dd'),
+            facultyName: student.facultyName,
+          }));
+          setDataStudent(studentsData);
+        }
         console.log(dataStudent);
       } catch (error) {
         console.error(error);
       }
     };
-    const fetchDataFilter = async () => {
-      try {
-        const response = await axios.get("https://localhost:7232/api/Students/StudentInFaculty/" + FilterString, {
-          headers: {
-            Authorization: `Bearer ${accessToken}`
-          }
-        });
-        console.log(response.data);
-        const studentsData = response.data.map((student: any, index: number) => ({
-          studentId: student.studentId,
-          studentName: student.studentName,
-          studentImage: student.studentImage,
-          studentBirthDate: format(new Date(student.studentBirthDate), 'yyyy-MM-dd'),
-          facultyName: student.facultyName,
-        }));
-        setDataStudent(studentsData);
-        console.log('Fetch data successful');
-      } catch (error) {
-        console.error(error);
-      }
-    };
-    if (FilterString != "")
-      fetchData();
-    else
-      fetchDataFilter();
-
+    fetchData();
     console.log("render lại nè");
-  }, [dataUpdate, DataFilter, Pages]);
+  }, [dataUpdate, DataFilter, Pageschange]);
   const isEditing = (record: Item) => record.studentId === editingid;
 
   const edit = (record: Partial<Item> & { studentId: string }) => {
@@ -186,61 +70,37 @@ const App: React.FC<ChildProps> = (props) => {
     }));
   };
   const DeleteID = (record: Partial<Item> & { studentId: string }) => {
-    axios
-      .delete(
-        "https://localhost:7232/api/Students/" + record.studentId,
-        {
-          headers: {
-            Authorization: `Bearer ${accessToken}`
-          }
-        }
-      )
-      .then((response) => {
-        alert("Đã xóa học sinh");
-        const newDataStudent = dataStudent.filter(item => item.studentId !== record.studentId);
-        handleDataChange(newDataStudent);
-      })
-      .catch((err) => console.log(err));
+    const bienxoa = DeleteStudent(record.studentId);
+    if (typeof bienxoa === 'undefined') {
+      console.log('studentList is of type void');
+    } else {
+      const newDataStudent = dataStudent.filter(item => item.studentId !== record.studentId);
+      handleDataChange(newDataStudent);
+    }
   };
-
-
   const cancel = () => {
     setEditingid('');
   };
-
   const save = async (id: string) => {
     try {
       const row = (await form.validateFields()) as Item;
       row.studentId = id;
+      row.facultyName = dataKH.find(x => x.facultyId === DataEditKhoaId)?.facultyName || "null";
       row.facultyId = DataEditKhoaId;
-      row.facultyName = dataKH.find(x => x.facultyId = DataEditKhoaId)?.facultyName || "null";
       const newData = [...dataStudent];
       const index = newData.findIndex((item) => id === item.studentId);
       // id
       if (index > -1) {
-        console.log(row);
+
         newData.splice(index, 1, row);
+        const update = await UpdateStudent(row, id);
+        if (typeof update === 'undefined') {
+          setEditingid('');
+          return;
+        }
         setDataStudent(newData);
         setEditingid('');
-        // xử lý cập nhật dữ liệu
-        axios
-          .put(
-            "https://localhost:7232/api/Students/" +
-            id,
-            newData[index],
-            {
-              headers: {
-                Authorization: `Bearer ${accessToken}`
-              }
-            }
-          )
-          .then((response) => { alert("cạp nhat thanh cong") })
 
-          .catch((err) => {
-            console.log(err)
-            console.log(newData[index])
-          });
-        console.log(newData[index]);
       } else {
         newData.push(row);
         setDataStudent(newData);
@@ -256,7 +116,7 @@ const App: React.FC<ChildProps> = (props) => {
   };
   const handleChanegPages = (newPages: number) => {
     console.log(newPages);
-    setPages(newPages);
+    setPageschange(newPages);
   };
   const dataColumns: ShowColumns[] = [
     {
@@ -286,7 +146,7 @@ const App: React.FC<ChildProps> = (props) => {
       render: (_: any, record: Item) => {
         const editableShow = isEditing(record);
         return editableShow ? (
-          <Select onChange={handleSelectChange} style={{ minWidth: "100px" }}>
+          <Select onChange={handleSelectChange} style={{ minWidth: "200px" }}>
             {dataKH.map((p, index) => (
               <Select.Option key={p.facultyId} value={p.facultyId}>
                 {p.facultyName}
@@ -363,7 +223,6 @@ const App: React.FC<ChildProps> = (props) => {
         >
           {mergedColumns.map((column: ShowColumns) => {
             const { dataIndex, title, width, ...restColumnProps } = column;
-
 
             // Adjust the render function to pass the count as the index parameter
             const adjustedRender = column.render

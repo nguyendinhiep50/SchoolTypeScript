@@ -1,94 +1,24 @@
-import React, { useEffect, useState, ReactNode } from 'react';
-import { Form, Button, Input, InputNumber, Popconfirm, Table, Typography, Pagination } from 'antd';
-import { BrowserRouter as Router, Route, Link, useHistory, useLocation } from 'react-router-dom';
-
-import axios from 'axios';
+import React, { useEffect, useState } from 'react';
+import { Form, Button, Popconfirm, Table, Typography, Pagination } from 'antd';
+import { BrowserRouter as Router, Route, Link } from 'react-router-dom';
+import { Item, ShowColumns, EditableCell } from '../../../InterFace/ITeacher'
 import { format } from 'date-fns';
-interface Item {
-  teacherId: string; // Make sure you have a unique id for each item in the array
-  teacherName: string;
-  teacherImage: string;
-  teacherEmail: string;
-  teacherBirthDate: Date;
-  teacherPhone: string;
-  teacherAdress: string;
-}
-interface ShowColumns {
-  title: string;
-  dataIndex: string;
-  width: string;
-  fixed: string;
-  editable: boolean;
-  render?: RenderFunction | RenderWithCellFunction;
-}
-const accessToken = localStorage.getItem("access_tokenAdmin");
-
-type RenderFunction = (value: any, record: Item, index: number) => ReactNode;
-type RenderWithCellFunction = (value: any, record: Item, index: number) => ReactNode;
-interface EditableCellProps extends React.HTMLAttributes<HTMLElement> {
-  editing: boolean;
-  dataIndex: string;
-  title: any;
-  inputType: 'number' | 'text';
-  record: Item;
-  index: number;
-  children: React.ReactNode;
-}
-const EditableCell: React.FC<EditableCellProps> = ({
-  editing,
-  dataIndex,
-  title,
-  inputType,
-  record,
-  index,
-  children,
-  ...restProps
-}) => {
-  const inputNode = inputType === 'number' ? <InputNumber /> : <Input />;
-
-  return (
-    <td {...restProps}>
-      {editing ? (
-        <Form.Item
-          name={dataIndex}
-          style={{ margin: 0 }}
-          rules={[
-            {
-              required: true,
-              message: `Please Input ${title}!`,
-            },
-          ]}
-        >
-          {inputNode}
-        </Form.Item>
-      ) : (
-        children
-      )}
-    </td>
-  );
-};
-
+import { GetListTeacherPage, CountTeachers, DeleteTeacher, UpdateTeacher } from '../../../services/APITeacher';
+import { PagesAndSize } from '../../../services/types'
 const App: React.FC = () => {
-  const accessToken = localStorage.getItem("access_tokenAdmin");
   const [form] = Form.useForm();
+  const [Pageschange, setPageschange] = useState(1);
+  const [Size, setSize] = useState(3);
   const [editingid, setEditingid] = useState('');
   const [dataTeacher, setdataTeacher] = useState<Item[]>([]);
   const [dataUpdate, setdataUpdate] = React.useState({ Item: {} as Item })
-  const [Pages, setPages] = useState(1);
-  const [Size, setSize] = useState(3);
   const [countTeacher, setcountTeacher] = useState(0);
   useEffect(() => {
-    const accessToken = localStorage.getItem("access_tokenAdmin");
-
     const fetchData = async () => {
       try {
-        const response = await axios.get("https://localhost:7232/api/Students/TakeCountAll", {
-          headers: {
-            Authorization: `Bearer ${accessToken}`
-          }
-        });
-        const value: any = response.data;
-        setcountTeacher(value);
+        const response = await CountTeachers();
+        const value: any = response;
+        setcountTeacher(value.data);
         console.log('Fetch data successful');
       } catch (error) {
         console.error(error);
@@ -97,34 +27,31 @@ const App: React.FC = () => {
     fetchData();
   }, []);
   useEffect(() => {
-    const accessToken = localStorage.getItem("access_tokenAdmin");
+    const pagesAndSize: PagesAndSize = { pages: Pageschange, size: 3 };
     const fetchData = async () => {
       try {
-        const response = await axios.get("https://localhost:7232/api/Teachers?pages=" + 0, {
-          headers: {
-            Authorization: `Bearer ${accessToken}`
-          }
-        });
-        console.log(response.data);
-        const studentsData = response.data.map((teacher: any, index: number) => ({
-          teacherId: teacher.teacherId,
-          teacherName: teacher.teacherName,
-          teacherImage: teacher.teacherImage,
-          teacherEmail: teacher.teacherEmail,
-          teacherBirthDate: format(new Date(teacher.teacherBirthDate), 'yyyy-MM-dd'),
-          teacherPhone: teacher.teacherPhone,
-          teacherAdress: teacher.teacherAdress,
-        }));
-
-        setdataTeacher(studentsData);
-        console.log('Fetch data successful');
+        const response = await GetListTeacherPage(pagesAndSize);
+        if (typeof response === 'undefined') {
+          console.log('studentList is of type void');
+        } else {
+          const studentsData = response.data.map((teacher: any, index: number) => ({
+            teacherId: teacher.teacherId,
+            teacherName: teacher.teacherName,
+            teacherImage: teacher.teacherImage,
+            teacherEmail: teacher.teacherEmail,
+            teacherBirthDate: format(new Date(teacher.teacherBirthDate), 'yyyy-MM-dd'),
+            teacherPhone: teacher.teacherPhone,
+            teacherAdress: teacher.teacherAdress,
+          }));
+          setdataTeacher(studentsData);
+        }
       } catch (error) {
         console.error(error);
       }
     };
 
     fetchData();
-  }, [dataUpdate]);
+  }, [dataUpdate, Pageschange]);
   const isEditing = (record: Item) => record.teacherId === editingid;
 
   const edit = (record: Partial<Item> & { teacherId: string }) => {
@@ -138,20 +65,13 @@ const App: React.FC = () => {
     }));
   };
   const DeleteID = (record: Partial<Item> & { teacherId: string }) => {
-    axios
-      .delete(
-        "https://localhost:7232/api/Teachers/" + record.teacherId, {
-        headers: {
-          Authorization: `Bearer ${accessToken}`
-        }
-      }
-      )
-      .then((response) => {
-        alert("Đã xóa giáo viên");
-        const newDataStudent = dataTeacher.filter(item => item.teacherId !== record.teacherId);
-        handleDataChange(newDataStudent);
-      })
-      .catch((err) => console.log(err));
+    const bienxoa = DeleteTeacher(record.teacherId);
+    if (typeof bienxoa === 'undefined') {
+      console.log('studentList is of type void');
+    } else {
+      const newDataStudent = dataTeacher.filter(item => item.teacherId !== record.teacherId);
+      handleDataChange(newDataStudent);
+    }
   };
   const cancel = () => {
     setEditingid('');
@@ -169,18 +89,12 @@ const App: React.FC = () => {
         setdataTeacher(newData);
         setEditingid('');
         // xử lý cập nhật dữ liệu
-        axios
-          .put(
-            "https://localhost:7232/api/Teachers/" +
-            teacherId,
-            newData[index], {
-            headers: {
-              Authorization: `Bearer ${accessToken}`
-            }
-          }
-          )
-          .then((response) => { alert("cạp nhat thanh cong") })
-          .catch((err) => console.log(err));
+        const update = UpdateTeacher(newData[index], teacherId);
+        if (typeof update === 'undefined') {
+          setEditingid('');
+          console.log('Validate Failed');
+        }
+
       } else {
         newData.push(row);
         setdataTeacher(newData);
@@ -192,7 +106,7 @@ const App: React.FC = () => {
   };
   const handleChanegPages = (newPages: number) => {
     console.log(newPages);
-    setPages(newPages);
+    setPageschange(newPages);
   };
   const dataColumns: ShowColumns[] = [
     {
@@ -210,13 +124,6 @@ const App: React.FC = () => {
       fixed: '',
     },
     {
-      title: 'Email',
-      dataIndex: 'teacherEmail',
-      width: '20%',
-      editable: true,
-      fixed: '',
-    },
-    {
       title: 'Ngày sinh',
       dataIndex: 'teacherBirthDate',
       width: '8%',
@@ -227,13 +134,6 @@ const App: React.FC = () => {
       title: 'Địa chỉ',
       dataIndex: 'teacherAdress',
       width: '15%',
-      editable: true,
-      fixed: '',
-    },
-    {
-      title: 'điện thoại',
-      dataIndex: 'teacherPhone',
-      width: '10%',
       editable: true,
       fixed: '',
     },
@@ -295,15 +195,12 @@ const App: React.FC = () => {
               cell: EditableCell,
             },
           }}
+          pagination={false}
           bordered
           dataSource={dataTeacher}
-          scroll={{ x: 1600 }}
           rowClassName="editable-row"
-          pagination={{
-            onChange: cancel,
-          }}
         >
-          {mergedColumns.map((column: ShowColumns, demcolumn) => {
+          {mergedColumns.map((column: ShowColumns) => {
             const { dataIndex, title, width, fixed, ...restColumnProps } = column;
             const mappedFixed = fixed === 'left' ? 'left' : fixed === 'right' ? 'right' : undefined;
 
@@ -317,7 +214,6 @@ const App: React.FC = () => {
                 key={dataIndex}
                 title={title}
                 dataIndex={dataIndex}
-                width={width}
                 fixed={mappedFixed}
                 render={adjustedRender}
                 {...restColumnProps}

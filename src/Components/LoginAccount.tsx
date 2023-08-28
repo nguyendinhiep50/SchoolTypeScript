@@ -11,8 +11,8 @@ const App: React.FC = () => {
     console.log('Received values of form: ', values);
   };
   const [DataPost, setDataPost] = useState({
-    nameLogin: "",
-    passWord: "",
+    accountName: "",
+    accountPassword: "",
   });
   const [DataClaim, setDataClaim] = useState("");
   const [DataToken, setDataToken] = useState("");
@@ -36,20 +36,20 @@ const App: React.FC = () => {
   const handleLoginEmail = (event: React.ChangeEvent<HTMLInputElement> | undefined) => {
     // Sử dụng React.ChangeEvent<HTMLInputElement> để chỉ định kiểu dữ liệu cho event
     if (event) {
-      const newPassWorld = event.target.value;
+      const newaccountName = event.target.value;
       setDataPost((prevData) => ({
         ...prevData,
-        nameLogin: newPassWorld,
+        accountName: newaccountName,
       }));
     }
   };
   const handlePassWorld = (event: React.ChangeEvent<HTMLInputElement> | undefined) => {
     // Sử dụng React.ChangeEvent<HTMLInputElement> để chỉ định kiểu dữ liệu cho event
     if (event) {
-      const newPassWorld = event.target.value;
+      const newaccountPassword = event.target.value;
       setDataPost((prevData) => ({
         ...prevData,
-        passWord: newPassWorld,
+        accountPassword: newaccountPassword,
       }));
     }
   };
@@ -147,7 +147,7 @@ const App: React.FC = () => {
         <Form.Item>
           <Button style={{ marginRight: "6px" }} type="primary" onClick={handleSaveLoginAdmin}>Login Account</Button>
           Or
-          <Button style={{ paddingLeft: "8px" }} href='/RegisterAccount' type="link">register now!</Button>
+          <Button style={{ paddingLeft: "8px" }} href='/RegisterAccount' type="link">register now!  CANCEL</Button>
         </Form.Item>
       </Form>
     </>
