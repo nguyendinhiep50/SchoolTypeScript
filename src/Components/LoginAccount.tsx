@@ -75,7 +75,10 @@ const App: React.FC = () => {
       const decodedToken: DecodedToken = jwt_decode(DataToken);
       let DataClaimMain: string = "";
       const roleClaim = decodedToken['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'];
-      if (roleClaim.toString() === "Student") {
+      if (roleClaim === undefined) {
+        alert("Acc bạn đã bị ban.Vui lòng liên hệ Admin để được cấp lại");
+      }
+      else if (roleClaim.toString() === "Student") {
         DataClaimMain = roleClaim.toString();
       }
       else {
@@ -102,7 +105,7 @@ const App: React.FC = () => {
       const token = response.data;
       setDataToken(token);
     } catch (error) {
-      console.error("Đăng nhập thất bại:", error);
+      alert("Đăng nhập thất bại:");
       history.push("/");
     }
   };

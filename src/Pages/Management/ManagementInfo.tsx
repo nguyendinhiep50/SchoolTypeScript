@@ -6,20 +6,20 @@ import { BrowserRouter as Router, useHistory } from 'react-router-dom';
 import { Layout, theme, Col, Row } from "antd";
 import axios from "axios";
 interface InfoAccount {
-    managementId: string,
-    managementName: string,
-    managementEmail: string,
-    managementPassword: string
+    id: string,
+    nameManagement: string,
+    phoneManagement: string,
+    emailManagement: string
 }
 function IndexManagement() {
     const {
         token: { colorBgContainer },
     } = theme.useToken();
     const [dataInfoAccount, setdataInfoAccount] = useState<InfoAccount>({
-        managementId: '',
-        managementName: '',
-        managementEmail: '',
-        managementPassword: '',
+        id: '',
+        nameManagement: '',
+        phoneManagement: '',
+        emailManagement: '',
     });
     const history = useHistory();
     useEffect(() => {
@@ -31,14 +31,18 @@ function IndexManagement() {
 
                 try {
                     const response = await axios.get(
-                        `https://localhost:7232/api/Managements/user?stringToken=${accessToken}`
+                        `https://localhost:7232/api/Managements/GetManagementInfo`, {
+                        headers: {
+                            Authorization: `Bearer ${accessToken}`
+                        }
+                    }
                     );
 
                     const InfoAccount1 = {
-                        managementId: response.data.managementId,
-                        managementName: response.data.managementName,
-                        managementEmail: response.data.managementEmail,
-                        managementPassword: response.data.managementPassword,
+                        id: response.data.id,
+                        nameManagement: response.data.nameManagement,
+                        phoneManagement: response.data.phoneManagement,
+                        emailManagement: response.data.emailManagement,
                     };
 
                     setdataInfoAccount(InfoAccount1);

@@ -1,6 +1,5 @@
 import React, { useEffect, useState, ReactNode } from 'react';
-import axios from 'axios';
-import ListStudent from "./List/ListStudent";
+import ListStudent from "./Student/ListStudent";
 import { Select } from 'antd';
 import { PagesAndSize } from '../../services/types';
 import { GetListFacultyPage } from '../../services/APIFaculty';

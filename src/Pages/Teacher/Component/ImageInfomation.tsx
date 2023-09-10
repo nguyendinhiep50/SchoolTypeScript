@@ -1,6 +1,5 @@
 import React from 'react';
 import { Image } from 'antd';
-
 const ImageInfomation: React.FC = () => (
   <Image
     width="80%"

@@ -15,10 +15,10 @@ const normFile = (e: any) => {
   return e?.fileList;
 };
 interface InfoAccount {
-  managementId: string,
-  managementName: string,
-  managementEmail: string,
-  managementPassword: string
+  id: string,
+  nameManagement: string,
+  phoneManagement: string,
+  emailManagement: string
 }
 interface InfomationProps {
   dataInfoAccount: InfoAccount;
@@ -38,7 +38,7 @@ const FormDisabledDemo: React.FC<InfomationProps> = ({ dataInfoAccount }) => {
     console.log(dataEdit);
     axios
       .put(
-        "https://localhost:7232/api/Managements/" + dataEdit.managementId,
+        "https://localhost:7232/api/Managements/" + dataEdit.id,
         dataEdit
       )
       .then((response) => { alert("hello") })
@@ -56,10 +56,13 @@ const FormDisabledDemo: React.FC<InfomationProps> = ({ dataInfoAccount }) => {
         style={{ maxWidth: "1000px" }}
       >
         <Form.Item label="Name ADMIN">
-          <Input defaultValue={dataInfoAccount?.managementName} onChange={handleChangeName} />
+          <Input defaultValue={dataInfoAccount?.nameManagement} onChange={handleChangeName} />
         </Form.Item>
         <Form.Item label="Email">
-          <Input value={dataInfoAccount?.managementEmail} disabled />
+          <Input value={dataInfoAccount?.emailManagement} disabled />
+        </Form.Item>
+        <Form.Item label="Phone">
+          <Input value={dataInfoAccount?.phoneManagement} disabled />
         </Form.Item>
         <Form.Item label="cập nhật" style={{ display: 'block' }}>
           <Button type="primary" onClick={handleSaveName}  >

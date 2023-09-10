@@ -4,7 +4,9 @@ import { Layout } from "antd";
 import NavBar from "./Component/NavbarTeacher"; // Thay NavBar bằng thành phần NavBar thật của bạn 
 import IndexTeacher from "./IndexTeacher"
 import ChangePasswordTeacher from "./ChangePasswordTeacher"
-import SubjectResgister from "./Component/ClassResgister"
+import ClassLearn from "./Component/ClassLearn"
+import ListStudentClassLean from "./Component/ListStudentClassLean"
+
 
 
 function App() {
@@ -18,7 +20,8 @@ function App() {
               <Layout style={{ width: "80%" }}>
                 <Route path="/Teacher/IndexTeacher" exact={false} component={IndexTeacher} />
                 <Route path="/Teacher/ChangePasswordTeacher" exact={false} component={ChangePasswordTeacher} />
-                <Route path="/Teacher/SubjectResgister" exact={false} component={SubjectResgister} />
+                <Route path="/Teacher/ClassLearn" exact={false} component={ClassLearn} />
+                <Route path="/Teacher/ListStudentClassLean" exact={false} component={ListStudentClassLean} />
 
               </Layout>
             </Layout>

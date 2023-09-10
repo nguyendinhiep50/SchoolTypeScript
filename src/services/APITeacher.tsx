@@ -22,6 +22,14 @@ export const GetListTeacherPage = async (params: PagesAndSize) => {
     }).catch((err) => console.log(err));
     return response;
 }
+export const GetListTeacher = async () => {
+    const response = await axios.get("https://localhost:7232/api/Teachers", {
+        headers: {
+            Authorization: `Bearer ${accessToken}`
+        }
+    }).catch((err) => console.log(err));
+    return response;
+}
 export const DeleteTeacher = async (params: string) => {
     const bien = params;
     const response = await axios.delete("https://localhost:7232/api/Teachers/"

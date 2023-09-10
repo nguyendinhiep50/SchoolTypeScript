@@ -4,23 +4,27 @@ import NavBar from "../../Components/NavabarAdmin"; // Thay NavBar bằng thành
 import { Layout } from "antd";
 import ManagementIndex from "./ManagementInfo";
 import ManagementPassword from "./ManagementPassword";
-import AddStudent from "./Add/AddStudent";
-import AddTeacher from "./Add/AddTeacher";
-import AddFaculty from "./Add/AddFaculty";
-import AddSubject from "./Add/AddSubject";
-import AddSemester from "./Add/AddSemester";
-import AddClass from "./Add/AddClass";
+import AddStudent from "./Student/AddStudent";
+import AddTeacher from "./Teacher/AddTeacher";
+import AddFaculty from "./Faculty/AddFaculty";
+import AddSubject from "./Subject/AddSubject";
+import AddSemester from "./Semester/AddSemester";
+import AddClass from "./Class/AddClass";
 import AddListStudentClass from "./Add/AddListStudentClass";
-import AddRole from "./Add/AddRole";
+import AddRole from "./Role/AddRole";
+import AddAcademicProgram from "./AcademicProgram/AddAcademicProgram";
 
 
 import ListStudent from "./LayOutListStudent";
-import ListTeacher from "./List/ListTeacher";
-import ListSubject from "./List/ListSubject";
-import ListSemester from "./List/ListSemester";
-import ListFaculty from "./List/ListFaculty";
+import ListTeacher from "./Teacher/ListTeacher";
+import ListSubject from "./Subject/ListSubject";
+import ListSemester from "./Semester/ListSemester";
+import ListFaculty from "./Faculty/ListFaculty";
 import ListClassLearn from "./List/ListClassLearn";
-import ListClass from "./List/ListClass";
+import ListClass from "./Class/ListClass";
+import ListRoleAccount from "./Role/ListRoleAccount";
+import ListAcademicProgram from "./AcademicProgram/ListAcademicProgram";
+
 
 function App() {
   return (
@@ -41,6 +45,7 @@ function App() {
                 <Route path="/Management/ClassAdd" exact={false} component={AddClass} />
                 <Route path="/Management/ClassLearnAdd" exact={false} component={AddListStudentClass} />
                 <Route path="/Management/AddRole" exact={false} component={AddRole} />
+                <Route path="/Management/AddAcademicProgram" exact={false} component={AddAcademicProgram} />
 
 
                 <Route path="/Management/StudentList" exact={false} component={ListStudent} />
@@ -50,6 +55,10 @@ function App() {
                 <Route path="/Management/SemesterList" exact={false} component={ListSemester} />
                 <Route path="/Management/ClassLearnList" exact={false} component={ListClassLearn} />
                 <Route path="/Management/ClassList" exact={false} component={ListClass} />
+                <Route path="/Management/ListRoleAccount" exact={false} component={ListRoleAccount} />
+                <Route path="/Management/ListAcademicProgram" exact={false} component={ListAcademicProgram} />
+
+
               </Switch>
             </Layout>
           </Layout>

@@ -1,14 +1,12 @@
 import React, { useEffect, useState, ReactNode } from 'react';
 import { Form, Button, Input, InputNumber, Popconfirm, Table, Typography } from 'antd';
-import { BrowserRouter as Router, Route, Link } from 'react-router-dom';
 
 import axios from 'axios';
-import { format } from 'date-fns';
 interface Item {
-    subjectId: string; // Make sure you have a unique id for each item in the array
-    subjectName: string;
-    subjectCredit: number;
-    subjectMandatory: boolean;
+    classLearnsId: string; // Make sure you have a unique id for each item in the array
+    classLearnName: string;
+    classLearnEnrollment: number;
+    academicProgramId: string;
 }
 interface EditableCellProps extends React.HTMLAttributes<HTMLElement> {
     editing: boolean;
@@ -63,26 +61,26 @@ const EditableCell: React.FC<EditableCellProps> = ({
         </td>
     );
 };
-
-const App: React.FC = () => {
+const App: React.FC = ({ history }: any) => {
     const [form] = Form.useForm();
     const [editingid, setEditingid] = useState('');
-    const [dataSubject, setdataSubject] = useState<Item[]>([]);
+    const [dataClassLearn, setdataClassLearn] = useState<Item[]>([]);
     const [dataUpdate, setdataUpdate] = React.useState({ Item: {} as Item })
+    const [data, setData] = useState<any>(null);
     useEffect(() => {
-        const accessToken = localStorage.getItem("access_tokenStudent");
+        const accessToken = localStorage.getItem("access_tokenTeacher");
         console.log(accessToken);
         const fetchData = async () => {
             try {
-                const response = await axios.get("https://localhost:7232/api/Subjects/TakeSubjectForStudent?tokenStudent=" + accessToken);
+                const response = await axios.get("https://localhost:7232/api/Teachers/GetClassLearnForTeacher?token=" + accessToken);
                 console.log(response.data);
-                const SubjectsData = response.data.map((Subject: any, index: number) => ({
-                    subjectId: Subject.subjectId,
-                    subjectName: Subject.subjectName,
-                    subjectCredit: Subject.subjectCredit,
-                    subjectMandatory: Subject.subjectMandatory === true ? "true" : "false",
+                const ClassLearnsData = response.data.map((ClassLearn: any, index: number) => ({
+                    classLearnsId: ClassLearn.classLearnsId,
+                    classLearnName: ClassLearn.classLearnName,
+                    classLearnEnrollment: ClassLearn.classLearnEnrollment,
+                    academicProgramId: ClassLearn.academicProgramId
                 }));
-                setdataSubject(SubjectsData);
+                setdataClassLearn(ClassLearnsData);
                 console.log('Fetch data successful');
             } catch (error) {
                 console.error(error);
@@ -97,26 +95,40 @@ const App: React.FC = () => {
             Item: newData
         }));
     };
-    const DeleteID = (record: Partial<Item> & { subjectId: string }) => {
+    const DeleteID = (record: Partial<Item> & { classLearnsId: string }) => {
         axios
             .delete(
-                "https://localhost:7232/api/Subjects/" + record.subjectId
+                "https://localhost:7232/api/ClassLearns/" + record.classLearnsId
             )
             .then((response) => {
-                alert("Đã xóa môn học này -" + record.subjectName);
-                const newDataStudent = dataSubject.filter(item => item.subjectId !== record.subjectId);
-                setdataSubject(newDataStudent);
+                alert("Đã xóa môn học này -" + record.classLearnsId);
+                const newDataStudent = dataClassLearn.filter(item => item.classLearnsId !== record.classLearnsId);
+                setdataClassLearn(newDataStudent);
             })
             .catch((err) => console.log(err));
     };
 
-    const isEditing = (record: Item) => record.subjectId === editingid;
+    const isEditing = (record: Item) => record.classLearnsId === editingid;
 
-    const edit = (record: Partial<Item> & { subjectId: string }) => {
-        form.setFieldsValue({ subjectName: '', subjectCredit: 0, subjectMandatory: 'hiban', ...record });
-        setEditingid(record.subjectId);
+    const edit = (record: Partial<Item> & { classLearnsId: string }) => {
+        form.setFieldsValue({ ClassLearnName: '', ClassLearnCredit: 0, ClassLearnMandatory: 'hiban', ...record });
+        setEditingid(record.classLearnsId);
     };
+    const DetailCLass = (record: Partial<Item> & { classLearnsId: string }) => {
 
+        axios.get('https://localhost:7232/api/Teachers/ListStudentLearn?IdClass=' + record.classLearnsId)
+            .then((response) => {
+                // Lấy dữ liệu từ phản hồi
+                const responseData = response.data;
+                setData(responseData);
+                console.log(responseData);
+                // Chuyển hướng đến một thành phần khác và truyền dữ liệu
+                history.push('./ListStudentClassLean', { data: responseData });
+            })
+            .catch((error) => {
+                console.error('Lỗi khi gọi API:', error);
+            });
+    };
     const cancel = () => {
         setEditingid('');
     };
@@ -124,20 +136,20 @@ const App: React.FC = () => {
     const save = async (id: string) => {
         try {
             const row = (await form.validateFields());
-            row.subjectId = id;
-            console.log(row.subjectMandatory);
-            let result = (row.subjectMandatory === "true" ? true : false);
-            row.subjectMandatory = result;
-            const newData = [...dataSubject];
-            const index = newData.findIndex((item) => id === item.subjectId);
+            row.ClassLearnId = id;
+            console.log(row.ClassLearnMandatory);
+            let result = (row.ClassLearnMandatory === "true" ? true : false);
+            row.ClassLearnMandatory = result;
+            const newData = [...dataClassLearn];
+            const index = newData.findIndex((item) => id === item.classLearnsId);
             // id 
             if (index > -1) {
                 newData.splice(index, 1, row);
-                setdataSubject(newData);
+                setdataClassLearn(newData);
                 setEditingid('');
                 axios
                     .put(
-                        "https://localhost:7232/api/Subjects/" +
+                        "https://localhost:7232/api/ClassLearns/" +
                         id,
                         newData[index]
                     )
@@ -145,7 +157,7 @@ const App: React.FC = () => {
                     .catch((err) => console.log(err));
             } else {
                 newData.push(row);
-                setdataSubject(newData);
+                setdataClassLearn(newData);
                 setEditingid('');
             }
         } catch (errInfo) {
@@ -155,20 +167,20 @@ const App: React.FC = () => {
 
     const columns = [
         {
-            title: 'Tên môn',
-            dataIndex: 'subjectName',
+            title: 'Tên lớp',
+            dataIndex: 'classLearnName',
             width: '20%',
             editable: true,
         },
         {
-            title: 'chứng chỉ',
-            dataIndex: 'subjectCredit',
+            title: 'sĩ số',
+            dataIndex: 'classLearnEnrollment',
             width: '20%',
             editable: true,
         },
         {
-            title: 'bắt buộc',
-            dataIndex: 'subjectMandatory',
+            title: 'Khóa',
+            dataIndex: 'academicProgramId',
             width: '20%',
             editable: true,
         },
@@ -180,7 +192,7 @@ const App: React.FC = () => {
                 const editable = isEditing(record);
                 return editable ? (
                     <span>
-                        <Typography.Link onClick={() => save(record.subjectId)} style={{ marginRight: 8 }}>
+                        <Typography.Link onClick={() => save(record.classLearnsId)} style={{ marginRight: 8 }}>
                             Save
                         </Typography.Link>
                         <Popconfirm title="Sure to cancel?" onConfirm={cancel}>
@@ -189,7 +201,10 @@ const App: React.FC = () => {
                     </span>
                 ) : (
                     <>
-                        <Typography.Link disabled={editingid !== ''} onClick={() => edit(record)}>
+                        <Typography.Link disabled={editingid !== ''} onClick={() => DetailCLass(record)}>
+                            Detail
+                        </Typography.Link>
+                        <Typography.Link disabled={editingid !== ''} style={{ marginLeft: "20px" }} onClick={() => edit(record)}>
                             Edit
                         </Typography.Link>
                         <Typography.Link disabled={editingid !== ''} style={{ marginLeft: "20px" }} onClick={() => DeleteID(record)}>
@@ -209,7 +224,7 @@ const App: React.FC = () => {
             ...col,
             onCell: (record: Item) => ({
                 record,
-                inputType: col.dataIndex === 'id' ? 'subjectName' : 'subjectMandatory',
+                inputType: col.dataIndex === 'id' ? 'ClassLearnName' : 'ClassLearnMandatory',
                 dataIndex: col.dataIndex,
                 title: col.title,
                 editing: isEditing(record),
@@ -227,7 +242,7 @@ const App: React.FC = () => {
                         },
                     }}
                     bordered
-                    dataSource={dataSubject}
+                    dataSource={dataClassLearn}
                     columns={mergedColumns}
 
                     rowClassName="editable-row"

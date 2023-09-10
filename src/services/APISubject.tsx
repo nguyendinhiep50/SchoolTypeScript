@@ -46,3 +46,46 @@ export const UpdateSubject = async (params: Item, id: string) => {
         });
     return response;
 }
+export const Register = async (params: string) => {
+    const accessTokenStudent = localStorage.getItem("access_tokenStudent");
+    const response = await axios.post("https://localhost:7232/api/ListStudentClassLearns/StudentRegisterClass/"
+        + params, {
+        headers: {
+            Authorization: `Bearer ${accessTokenStudent}`
+        }
+    }).catch((err) => console.log(err));
+    return response;
+}
+
+export const SubjectRegisterAll = async () => {
+    const accessTokenStudent = localStorage.getItem("access_tokenStudent");
+    const response = await axios.get(`https://localhost:7232/api/Subjects/TakeSubjectForStudent`
+        , {
+            headers: {
+                Authorization: `Bearer ${accessTokenStudent}`
+            }
+        }).catch((err) => console.log(err));
+    return response;
+}
+export const SubjectNoRegister = async () => {
+    const accessTokenStudent = localStorage.getItem("access_tokenStudent");
+    const response = await
+        axios.get(`https://localhost:7232/api/Subjects/SubjectNoRegister`
+            , {
+                headers: {
+                    Authorization: `Bearer ${accessTokenStudent}`
+                }
+            }).catch((err) => console.log(err));
+    return response;
+}
+
+export const SubjectRegister = async () => {
+    const accessTokenStudent = localStorage.getItem("access_tokenStudent");
+    const response = await axios.get("https://localhost:7232/api/Subjects/SubjectRegister", {
+        headers: {
+            Authorization: `Bearer ${accessTokenStudent}`
+        }
+    }).catch((err) => console.log(err));
+    return response;
+}
+

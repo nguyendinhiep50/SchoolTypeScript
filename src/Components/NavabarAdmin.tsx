@@ -51,7 +51,11 @@ const items: MenuItem[] = [
     getItem('Class List', '13', null, "/Management/ClassList"),
     getItem('ClassLearn List', '14', null, "/Management/ClassLearnList"),
     getItem('Faculty List', '15', null, "/Management/FacultyList"),
-    getItem('Semester List', '16', null, "/Management/SemesterList")]),
+    getItem('Semester List', '16', null, "/Management/SemesterList"),
+    getItem('List Role', '17', null, "/Management/ListRoleAccount"),
+    getItem('List Academic ', '18', null, "/Management/ListAcademicProgram")]),
+
+
   getItem('Log Out', 'setting', <FileOutlined />, "/Logout"),
 ];
 

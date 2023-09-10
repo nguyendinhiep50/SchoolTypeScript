@@ -1,15 +1,28 @@
 import React, { useState, useEffect } from 'react';
 import { PlusOutlined } from '@ant-design/icons';
-import { Button, Cascader, Checkbox, DatePicker, Form, Input, InputNumber, Radio, Select, Slider, Switch, TreeSelect, Upload, Col, Row } from 'antd';
-
+import { Button, Cascader, Checkbox, DatePicker, Form, Input, Switch, TreeSelect, Upload, Col, Row } from 'antd';
+import dayjs from 'dayjs';
 const normFile = (e: any) => {
   if (Array.isArray(e)) {
     return e;
   }
   return e?.fileList;
 };
-const FormDisabledDemo: React.FC = () => {
+interface InfoAccount {
+  studentId: string,
+  studentName: string,
+  studentImage: string,
+  studentBirthDate: string,
+  facultyName: string,
+  facultyId: string,
+  phoneStudent: string,
+}
+interface InfomationProps {
+  dataInfoAccount: InfoAccount;
+}
+const FormDisabledDemo: React.FC<InfomationProps> = ({ dataInfoAccount }) => {
   const [componentDisabled, setComponentDisabled] = useState<boolean>(false);
+  console.log(dataInfoAccount)
   return (
     <>
       <Form
@@ -20,41 +33,19 @@ const FormDisabledDemo: React.FC = () => {
         style={{ maxWidth: 600 }}
       >
         <Form.Item label="Họ và tên">
-          <Input defaultValue={"Nguyen dinh hiep"} />
+          <Input defaultValue={dataInfoAccount?.studentName} />
         </Form.Item>
-        <Form.Item label="Lớp">
-          <Input value={"Tin học"} />
+        <Form.Item label="Khoa">
+          <Input defaultValue={dataInfoAccount?.facultyName} />
         </Form.Item>
-        <Form.Item label="Email">
-          <Input />
-        </Form.Item>
-        <Form.Item label="Tình trạng" style={{ margin: "0" }}>
-          <div style={{ display: "flex" }}>
-            <Col span={8}>
-              <Form.Item label="" name="disabled" valuePropName="checked">
-                <Checkbox defaultChecked={true}>Còn học</Checkbox>
-              </Form.Item>
-            </Col>
-            <Col span={24}>
-              <Form.Item label="Giới tính">
-                <Radio.Group>
-                  <Radio value="Nam"> Nam </Radio>
-                  <Radio value="Nu"> Nữ </Radio>
-                </Radio.Group>
-              </Form.Item>
-            </Col>
-          </div>
 
-        </Form.Item>
         <Form.Item label="Ngày sinh">
-          <DatePicker />
+          <DatePicker defaultValue={dayjs(dataInfoAccount.studentBirthDate, "YYYY-MM-DD")} />
         </Form.Item>
         <Form.Item label="Số điện thoại">
-          <Input value={"Nguyen dinh hiep"} />
+          <Input defaultValue={dataInfoAccount?.phoneStudent} />
         </Form.Item>
-        <Form.Item label="Địa chỉ">
-          <Input value={"Nguyen dinh hiep"} />
-        </Form.Item>
+
         <Form.Item label="Thay đổi ảnh" valuePropName="fileList" getValueFromEvent={normFile}>
           <Upload action="/upload.do" listType="picture-card">
             <div>

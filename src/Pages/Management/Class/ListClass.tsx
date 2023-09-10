@@ -212,24 +212,25 @@ const App: React.FC = () => {
   const handleSelectChangeAcademicProgram = (newAcademicProgramid: string) => {
     setdataAcademicProgramId(newAcademicProgramid);
   };
+
   const dataColumns: ShowColumns[] = [
     {
       title: 'Tên Lớp',
       dataIndex: 'classLearnName',
-      width: '16%',
+      width: '10%',
       editable: true,
     },
     {
       title: 'Sĩ Số',
       dataIndex: 'classLearnEnrollment',
-      width: '10%',
+      width: '5%',
       editable: true,
 
     },
     {
       title: 'Học kì - Khoa',
       dataIndex: 'studentBirthDate',
-      width: '8%',
+      width: '14%',
       editable: false,
       render: (_: any, record: Item) => {
         const editableShow = isEditing(record);
@@ -251,7 +252,7 @@ const App: React.FC = () => {
     {
       title: 'Giáo Viên',
       dataIndex: 'facultyName',
-      width: '8%',
+      width: '12%',
       editable: false,
       render: (_: any, record: Item) => {
         const editableShow = isEditing(record);
@@ -291,6 +292,9 @@ const App: React.FC = () => {
             <Typography.Link disabled={editingid !== ''} onClick={() => edit(record)}>
               Edit
             </Typography.Link>
+            {/* <Typography.Link disabled={editingid !== ''} style={{ marginLeft: '20px' }} onClick={() => DetailCLass(record)}>
+              Detail
+            </Typography.Link> */}
             <Typography.Link disabled={editingid !== ''} style={{ marginLeft: '20px' }} onClick={() => DeleteID(record)}>
               Delete
             </Typography.Link>

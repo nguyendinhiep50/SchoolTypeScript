@@ -21,14 +21,9 @@ function generateArrayList(key: string) {
     return [
       { key: "Teacher/IndexTeacher", value: "Thông tin tài khoản" },
     ];
-  } else if (key === "Đăng ký lớp dạy") {
-    return [
-      { key: "Teacher/SubjectResgister", value: "Đăng ký" },
-      { key: "RegisteredSubjects", value: "lớp dạy" }, // Changed to a different key
-    ];
   } else if (key === "Lịch") {
     return [
-      { key: "Class", value: "Lịch học" },
+      { key: "Teacher/ClassLearn", value: "Lịch dạy" },
     ];
   } else if (key === "LogOut") {
     return [
@@ -90,11 +85,11 @@ const NavbarTeacher: React.FC = () => {
 
         try {
           // Gửi yêu cầu tới API để lấy thông tin người dùng
-          const response = await axios.get(
-            "https://localhost:7232/api/Teachers/user?stringToken=" +
-            accessToken
-          );
-          console.log("dăng nhập được", response);
+          // const response = await axios.get(
+          //   "https://localhost:7232/api/Teachers/user?stringToken=" +
+          //   accessToken
+          // );
+          console.log("dăng nhập được");
         } catch (error) {
           console.error("Lỗi khi lấy thông tin người dùng:", error);
         }

@@ -4,7 +4,7 @@ import { Layout } from "antd";
 import NavBar from "./Component/NavbarStudent"; // Thay NavBar bằng thành phần NavBar thật của bạn 
 import IndexStudent from "./IndexStudent"
 import ChangePasswordStudent from "./ChangePasswordStudent"
-import SubjectResgister from "./Component/SubjectResgister"
+import SubjectResgister from "./SubjectStudent/SubjectResgister"
 
 
 function App() {

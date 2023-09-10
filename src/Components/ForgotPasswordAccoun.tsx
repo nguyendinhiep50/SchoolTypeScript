@@ -16,8 +16,8 @@ const App: React.FC = () => {
     const handleUpdatePassword = async () => {
         console.log(DataPost);
         axios
-            .put(
-                "https://localhost:7232/api/Login/UpdateUser",
+            .post(
+                "https://localhost:7232/api/Login/ResetPassword",
                 DataPost, {
                 headers: {
                     Authorization: `Bearer ${accessToken}`
@@ -30,7 +30,6 @@ const App: React.FC = () => {
             });
     };
     const handleLoginName = (event: React.ChangeEvent<HTMLInputElement> | undefined) => {
-        // Sử dụng React.ChangeEvent<HTMLInputElement> để chỉ định kiểu dữ liệu cho event
         if (event) {
             const LoginName = event.target.value;
             setDataPost((prevData) => ({
@@ -40,7 +39,6 @@ const App: React.FC = () => {
         }
     };
     const handlePassWord = (event: React.ChangeEvent<HTMLInputElement> | undefined) => {
-        // Sử dụng React.ChangeEvent<HTMLInputElement> để chỉ định kiểu dữ liệu cho event
         if (event) {
             const LoginPassWord = event.target.value;
             setDataPost((prevData) => ({
@@ -50,7 +48,6 @@ const App: React.FC = () => {
         }
     };
     const handleNewPassWord = (event: React.ChangeEvent<HTMLInputElement> | undefined) => {
-        // Sử dụng React.ChangeEvent<HTMLInputElement> để chỉ định kiểu dữ liệu cho event
         if (event) {
             const NewPassWord = event.target.value;
             setDataPost((prevData) => ({

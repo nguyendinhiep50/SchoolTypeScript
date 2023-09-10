@@ -1,18 +1,18 @@
 import React, { useEffect, useState, ReactNode } from 'react';
-import { Form, Button, Pagination, Popconfirm, Table, Typography } from 'antd';
+import { Form, Button, Pagination, Popconfirm, Table, Typography, Checkbox, Col } from 'antd';
 import { BrowserRouter as Router, Route, Link } from 'react-router-dom';
 import { PagesAndSize } from '../../../services/types'
-import axios from 'axios';
 import { format } from 'date-fns';
-import { Item, EditableCellProps, ShowColumns, EditableCell } from "../../../InterFace/ISubject";
+import { Item, EditableCell } from "../../../InterFace/ISubject";
 import { GetListSubjectPage, CountSubjects, DeleteSubject, UpdateSubject } from '../../../services/APISubject';
 
 const App: React.FC = () => {
   const [form] = Form.useForm();
   const [Pageschange, setPageschange] = useState(1);
+  const [ChangeCheck, setChangeCheck] = useState(false);
+
   const [editingid, setEditingid] = useState('');
   const [dataSubject, setdataSubject] = useState<Item[]>([]);
-  const [dataUpdate, setdataUpdate] = React.useState({ Item: {} as Item })
   const [countSubject, setcountSubject] = useState(0);
   const [Size, setSize] = useState(3);
 
@@ -41,24 +41,16 @@ const App: React.FC = () => {
             subjectId: Subject.subjectId,
             subjectName: Subject.subjectName,
             subjectCredit: Subject.subjectCredit,
-            subjectMandatory: Subject.subjectMandatory === true ? "true" : "false",
+            subjectMandatory: Subject.subjectMandatory,
           }));
           setdataSubject(SubjectsData);
         }
       } catch (error) {
         console.error(error);
-
       }
     };
-
     fetchData();
-  }, [dataUpdate, Pageschange]);
-  // const handleDataChange = (newData: Item) => {
-  //   setdataUpdate(prevData => ({
-  //     ...prevData,
-  //     Item: newData
-  //   }));
-  // };
+  }, [dataSubject, Pageschange]);
   const DeleteID = (record: Partial<Item> & { subjectId: string }) => {
     const bienxoa = DeleteSubject(record.subjectId);
     if (typeof bienxoa === 'undefined') {
@@ -73,7 +65,7 @@ const App: React.FC = () => {
   const isEditing = (record: Item) => record.subjectId === editingid;
 
   const edit = (record: Partial<Item> & { subjectId: string }) => {
-    form.setFieldsValue({ subjectName: '', subjectCredit: 0, subjectMandatory: 'hiban', ...record });
+    form.setFieldsValue({ subjectName: '', subjectCredit: 0, subjectMandatory: true, ...record });
     setEditingid(record.subjectId);
   };
 
@@ -85,17 +77,16 @@ const App: React.FC = () => {
     try {
       const row = (await form.validateFields());
       row.subjectId = id;
-      console.log(row.subjectMandatory);
-      let result = (row.subjectMandatory === "true" ? true : false);
-      row.subjectMandatory = result;
+      row.subjectMandatory = ChangeCheck; // Set subjectMandatory based on ChangeCheck
       const newData = [...dataSubject];
       const index = newData.findIndex((item) => id === item.subjectId);
-      // id 
+
       if (index > -1) {
         newData.splice(index, 1, row);
         setdataSubject(newData);
         setEditingid('');
         const update = UpdateSubject(newData[index], id);
+
         if (typeof update === 'undefined') {
           setEditingid('');
           console.log('Validate Failed');
@@ -109,9 +100,13 @@ const App: React.FC = () => {
       console.log('Validate Failed:', errInfo);
     }
   };
+
   const handleChanegPages = (newPages: number) => {
     console.log(newPages);
     setPageschange(newPages);
+  };
+  const handleChanegCheck = (value: boolean) => {
+    setChangeCheck(value);
   };
   const columns = [
     {
@@ -130,8 +125,32 @@ const App: React.FC = () => {
       title: 'bắt buộc',
       dataIndex: 'subjectMandatory',
       width: '20%',
-      editable: true,
+      render: (_: any, record: Item) => {
+        const editable = isEditing(record);
+        const checkboxValue = record.subjectMandatory;
+
+        if (editable) {
+          return (
+            <Checkbox
+              checked={ChangeCheck}
+              onChange={(e) => handleChanegCheck(e.target.checked)}
+            >
+              Bắt buộc
+            </Checkbox>
+          );
+        } else {
+          return (
+            <Checkbox
+              disabled
+              checked={checkboxValue}
+            >
+              Bắt buộc
+            </Checkbox>
+          );
+        }
+      },
     },
+
     {
       title: 'operation',
       dataIndex: 'operation',
@@ -169,7 +188,7 @@ const App: React.FC = () => {
       ...col,
       onCell: (record: Item) => ({
         record,
-        inputType: col.dataIndex === 'id' ? 'subjectName' : 'subjectMandatory',
+        inputType: col.dataIndex === 'id' ? 'subjectName' : '',
         dataIndex: col.dataIndex,
         title: col.title,
         editing: isEditing(record),
@@ -194,9 +213,7 @@ const App: React.FC = () => {
           columns={mergedColumns}
 
           rowClassName="editable-row"
-          pagination={{
-            onChange: cancel,
-          }}
+          pagination={false}
         />
         <Pagination defaultCurrent={1} defaultPageSize={Size} onChange={handleChanegPages} total={countSubject.valueOf()} />
       </Form>

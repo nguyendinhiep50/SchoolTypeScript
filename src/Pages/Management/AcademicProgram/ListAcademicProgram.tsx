@@ -3,12 +3,13 @@ import { Form, Button, Input, InputNumber, Popconfirm, Table, Typography } from 
 import { BrowserRouter as Router, Route, Link } from 'react-router-dom';
 
 import axios from 'axios';
-import { format } from 'date-fns';
 interface Item {
-    subjectId: string; // Make sure you have a unique id for each item in the array
-    subjectName: string;
-    subjectCredit: number;
-    subjectMandatory: boolean;
+    academicProgramId: string,
+    academicProgramName: string
+    academicProgramTimeEnd: string,
+    facultyName: string,
+    subjectName: string,
+    semesterName: string
 }
 interface EditableCellProps extends React.HTMLAttributes<HTMLElement> {
     editing: boolean;
@@ -63,26 +64,33 @@ const EditableCell: React.FC<EditableCellProps> = ({
         </td>
     );
 };
-
-const App: React.FC = () => {
+const App: React.FC = ({ history }: any) => {
     const [form] = Form.useForm();
     const [editingid, setEditingid] = useState('');
-    const [dataSubject, setdataSubject] = useState<Item[]>([]);
+    const [dataAcademicProgram, setdataAcademicProgram] = useState<Item[]>([]);
     const [dataUpdate, setdataUpdate] = React.useState({ Item: {} as Item })
+    const [data, setData] = useState<any>(null);
     useEffect(() => {
-        const accessToken = localStorage.getItem("access_tokenStudent");
+        const accessToken = localStorage.getItem("access_tokenAdmin");
         console.log(accessToken);
         const fetchData = async () => {
             try {
-                const response = await axios.get("https://localhost:7232/api/Subjects/TakeSubjectForStudent?tokenStudent=" + accessToken);
+                const response = await axios.get("https://localhost:7232/api/AcademicPrograms/GetListAcademicProgram?pages=1&size=1",
+                    {
+                        headers: {
+                            Authorization: `Bearer ${accessToken}`
+                        }
+                    });
                 console.log(response.data);
-                const SubjectsData = response.data.map((Subject: any, index: number) => ({
-                    subjectId: Subject.subjectId,
-                    subjectName: Subject.subjectName,
-                    subjectCredit: Subject.subjectCredit,
-                    subjectMandatory: Subject.subjectMandatory === true ? "true" : "false",
+                const AcademicProgramsData = response.data.map((AcademicProgram: any, index: number) => ({
+                    academicProgramId: AcademicProgram.academicProgramId,
+                    academicProgramName: AcademicProgram.academicProgramName,
+                    academicProgramTimeEnd: AcademicProgram.academicProgramTimeEnd,
+                    facultyName: AcademicProgram.facultyName,
+                    subjectName: AcademicProgram.subjectName,
+                    semesterName: AcademicProgram.semesterName,
                 }));
-                setdataSubject(SubjectsData);
+                setdataAcademicProgram(AcademicProgramsData);
                 console.log('Fetch data successful');
             } catch (error) {
                 console.error(error);
@@ -97,26 +105,40 @@ const App: React.FC = () => {
             Item: newData
         }));
     };
-    const DeleteID = (record: Partial<Item> & { subjectId: string }) => {
+    const DeleteID = (record: Partial<Item> & { AcademicProgramsId: string }) => {
         axios
             .delete(
-                "https://localhost:7232/api/Subjects/" + record.subjectId
+                "https://localhost:7232/api/AcademicPrograms/" + record.AcademicProgramsId
             )
             .then((response) => {
-                alert("Đã xóa môn học này -" + record.subjectName);
-                const newDataStudent = dataSubject.filter(item => item.subjectId !== record.subjectId);
-                setdataSubject(newDataStudent);
+                alert("Đã xóa môn học này -" + record.AcademicProgramsId);
+                const newDataStudent = dataAcademicProgram.filter(item => item.academicProgramId !== record.AcademicProgramsId);
+                setdataAcademicProgram(newDataStudent);
             })
             .catch((err) => console.log(err));
     };
 
-    const isEditing = (record: Item) => record.subjectId === editingid;
+    const isEditing = (record: Item) => record.academicProgramId === editingid;
 
-    const edit = (record: Partial<Item> & { subjectId: string }) => {
-        form.setFieldsValue({ subjectName: '', subjectCredit: 0, subjectMandatory: 'hiban', ...record });
-        setEditingid(record.subjectId);
+    const edit = (record: Partial<Item>) => {
+        form.setFieldsValue({ AcademicProgramName: '', AcademicProgramCredit: 0, AcademicProgramMandatory: 'hiban', ...record });
+        // setEditingid(record.academicProgramId);
     };
+    // const DetailCLass = (record: Partial<Item> & { AcademicProgramsId: string }) => {
 
+    //     axios.get('https://localhost:7232/api/Teachers/ListStudentLearn?IdClass=' + record.AcademicProgramsId)
+    //         .then((response) => {
+    //             // Lấy dữ liệu từ phản hồi
+    //             const responseData = response.data;
+    //             setData(responseData);
+    //             console.log(responseData);
+    //             // Chuyển hướng đến một thành phần khác và truyền dữ liệu
+    //             history.push('./ListStudentClassLean', { data: responseData });
+    //         })
+    //         .catch((error) => {
+    //             console.error('Lỗi khi gọi API:', error);
+    //         });
+    // };
     const cancel = () => {
         setEditingid('');
     };
@@ -124,20 +146,20 @@ const App: React.FC = () => {
     const save = async (id: string) => {
         try {
             const row = (await form.validateFields());
-            row.subjectId = id;
-            console.log(row.subjectMandatory);
-            let result = (row.subjectMandatory === "true" ? true : false);
-            row.subjectMandatory = result;
-            const newData = [...dataSubject];
-            const index = newData.findIndex((item) => id === item.subjectId);
+            row.AcademicProgramId = id;
+            console.log(row.AcademicProgramMandatory);
+            let result = (row.AcademicProgramMandatory === "true" ? true : false);
+            row.AcademicProgramMandatory = result;
+            const newData = [...dataAcademicProgram];
+            const index = newData.findIndex((item) => id === item.academicProgramId);
             // id 
             if (index > -1) {
                 newData.splice(index, 1, row);
-                setdataSubject(newData);
+                setdataAcademicProgram(newData);
                 setEditingid('');
                 axios
                     .put(
-                        "https://localhost:7232/api/Subjects/" +
+                        "https://localhost:7232/api/AcademicPrograms/" +
                         id,
                         newData[index]
                     )
@@ -145,7 +167,7 @@ const App: React.FC = () => {
                     .catch((err) => console.log(err));
             } else {
                 newData.push(row);
-                setdataSubject(newData);
+                setdataAcademicProgram(newData);
                 setEditingid('');
             }
         } catch (errInfo) {
@@ -155,20 +177,32 @@ const App: React.FC = () => {
 
     const columns = [
         {
-            title: 'Tên môn',
+            title: 'Name AcademicProgram',
+            dataIndex: 'academicProgramName',
+            width: '20%',
+            editable: true,
+        },
+        {
+            title: 'Time End Academic Program',
+            dataIndex: 'academicProgramTimeEnd',
+            width: '20%',
+            editable: true,
+        },
+        {
+            title: 'Semester',
+            dataIndex: 'semesterName',
+            width: '20%',
+            editable: true,
+        },
+        {
+            title: 'Faculty',
+            dataIndex: 'facultyName',
+            width: '20%',
+            editable: true,
+        },
+        {
+            title: 'subject',
             dataIndex: 'subjectName',
-            width: '20%',
-            editable: true,
-        },
-        {
-            title: 'chứng chỉ',
-            dataIndex: 'subjectCredit',
-            width: '20%',
-            editable: true,
-        },
-        {
-            title: 'bắt buộc',
-            dataIndex: 'subjectMandatory',
             width: '20%',
             editable: true,
         },
@@ -180,7 +214,7 @@ const App: React.FC = () => {
                 const editable = isEditing(record);
                 return editable ? (
                     <span>
-                        <Typography.Link onClick={() => save(record.subjectId)} style={{ marginRight: 8 }}>
+                        <Typography.Link onClick={() => save(record.academicProgramId)} style={{ marginRight: 8 }}>
                             Save
                         </Typography.Link>
                         <Popconfirm title="Sure to cancel?" onConfirm={cancel}>
@@ -189,12 +223,12 @@ const App: React.FC = () => {
                     </span>
                 ) : (
                     <>
-                        <Typography.Link disabled={editingid !== ''} onClick={() => edit(record)}>
+                        <Typography.Link disabled={editingid !== ''} style={{ marginLeft: "20px" }} onClick={() => edit(record)}>
                             Edit
                         </Typography.Link>
-                        <Typography.Link disabled={editingid !== ''} style={{ marginLeft: "20px" }} onClick={() => DeleteID(record)}>
+                        {/* <Typography.Link disabled={editingid !== ''} style={{ marginLeft: "20px" }} onClick={() => DeleteID(record)}>
                             Delete
-                        </Typography.Link>
+                        </Typography.Link> */}
                     </>
                 );
             },
@@ -209,7 +243,7 @@ const App: React.FC = () => {
             ...col,
             onCell: (record: Item) => ({
                 record,
-                inputType: col.dataIndex === 'id' ? 'subjectName' : 'subjectMandatory',
+                inputType: col.dataIndex === 'id' ? 'AcademicProgramName' : 'AcademicProgramMandatory',
                 dataIndex: col.dataIndex,
                 title: col.title,
                 editing: isEditing(record),
@@ -219,6 +253,9 @@ const App: React.FC = () => {
 
     return (
         <>
+            <Link to="/Management/AddAcademicProgram">
+                <Button type="primary" style={{ width: "120px", marginBottom: "20px" }}>Add Academic</Button>
+            </Link>
             <Form form={form} component={false}>
                 <Table
                     components={{
@@ -227,7 +264,7 @@ const App: React.FC = () => {
                         },
                     }}
                     bordered
-                    dataSource={dataSubject}
+                    dataSource={dataAcademicProgram}
                     columns={mergedColumns}
 
                     rowClassName="editable-row"
