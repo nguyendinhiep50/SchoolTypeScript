@@ -129,6 +129,21 @@ const App: React.FC = ({ history }: any) => {
                 console.error('Lỗi khi gọi API:', error);
             });
     };
+    const SubjectGrades = (record: Partial<Item> & { classLearnsId: string }) => {
+
+        axios.get('https://localhost:7232/api/SubjectGrades/GetSubjectGradesAllClassLearn?IdClassLearn=' + record.classLearnsId)
+            .then((response) => {
+                // Lấy dữ liệu từ phản hồi
+                const responseData = response.data;
+                setData(responseData);
+                console.log(responseData);
+                // Chuyển hướng đến một thành phần khác và truyền dữ liệu
+                history.push('./ListSubjectGrades', { data: responseData });
+            })
+            .catch((error) => {
+                console.error('Lỗi khi gọi API:', error);
+            });
+    };
     const cancel = () => {
         setEditingid('');
     };
@@ -169,13 +184,13 @@ const App: React.FC = ({ history }: any) => {
         {
             title: 'Tên lớp',
             dataIndex: 'classLearnName',
-            width: '20%',
+            width: '15',
             editable: true,
         },
         {
             title: 'sĩ số',
             dataIndex: 'classLearnEnrollment',
-            width: '20%',
+            width: '15%',
             editable: true,
         },
         {
@@ -187,31 +202,18 @@ const App: React.FC = ({ history }: any) => {
         {
             title: 'operation',
             dataIndex: 'operation',
-            width: '15%',
+            width: '20%',
             render: (_: any, record: Item) => {
-                const editable = isEditing(record);
-                return editable ? (
-                    <span>
-                        <Typography.Link onClick={() => save(record.classLearnsId)} style={{ marginRight: 8 }}>
-                            Save
-                        </Typography.Link>
-                        <Popconfirm title="Sure to cancel?" onConfirm={cancel}>
-                            <a>Cancel</a>
-                        </Popconfirm>
-                    </span>
-                ) : (
+                return (
                     <>
-                        <Typography.Link disabled={editingid !== ''} onClick={() => DetailCLass(record)}>
+                        <Typography.Link disabled={editingid !== ''} style={{ marginLeft: "20px" }} onClick={() => SubjectGrades(record)}>
+                            Student Grades
+                        </Typography.Link>
+                        <Typography.Link disabled={editingid !== ''} style={{ marginLeft: "20px" }} onClick={() => DetailCLass(record)}>
                             Detail
                         </Typography.Link>
-                        <Typography.Link disabled={editingid !== ''} style={{ marginLeft: "20px" }} onClick={() => edit(record)}>
-                            Edit
-                        </Typography.Link>
-                        <Typography.Link disabled={editingid !== ''} style={{ marginLeft: "20px" }} onClick={() => DeleteID(record)}>
-                            Delete
-                        </Typography.Link>
                     </>
-                );
+                )
             },
         },
     ];

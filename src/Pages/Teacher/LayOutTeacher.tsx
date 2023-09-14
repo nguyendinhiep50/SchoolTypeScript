@@ -6,6 +6,8 @@ import IndexTeacher from "./IndexTeacher"
 import ChangePasswordTeacher from "./ChangePasswordTeacher"
 import ClassLearn from "./Component/ClassLearn"
 import ListStudentClassLean from "./Component/ListStudentClassLean"
+import ListSubjectGrades from "./Component/ListSubjectGrades"
+
 
 
 
@@ -22,6 +24,8 @@ function App() {
                 <Route path="/Teacher/ChangePasswordTeacher" exact={false} component={ChangePasswordTeacher} />
                 <Route path="/Teacher/ClassLearn" exact={false} component={ClassLearn} />
                 <Route path="/Teacher/ListStudentClassLean" exact={false} component={ListStudentClassLean} />
+                <Route path="/Teacher/ListSubjectGrades" exact={false} component={ListSubjectGrades} />
+
 
               </Layout>
             </Layout>

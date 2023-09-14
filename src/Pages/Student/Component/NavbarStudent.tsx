@@ -24,7 +24,7 @@ function generateArrayList(key: string) {
   } else if (key === "Đăng ký môn") {
     return [
       { key: "Student/SubjectResgister", value: "Đăng ký" },
-      { key: "RegisteredSubjects", value: "Môn đã đăng ký" }, // Changed to a different key
+      { key: "Student/SubjectGradeStudent", value: "Điểm môn học" }, // Changed to a different key
     ];
   } else if (key === "Lịch") {
     return [

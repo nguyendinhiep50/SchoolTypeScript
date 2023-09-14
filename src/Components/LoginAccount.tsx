@@ -3,6 +3,7 @@ import { LockOutlined, UserOutlined } from '@ant-design/icons';
 import { Button, Checkbox, Form, Input } from 'antd';
 import { Link, useHistory } from 'react-router-dom'; import axios from "axios";
 import jwt_decode from "jwt-decode";
+import { useDispatch } from 'react-redux';
 interface DecodedToken {
   [claimName: string]: string[]; // Hoặc các kiểu dữ liệu khác tùy thuộc vào claim
 }
@@ -16,7 +17,7 @@ const App: React.FC = () => {
   });
   const [DataClaim, setDataClaim] = useState("");
   const [DataToken, setDataToken] = useState("");
-
+  const dispatch = useDispatch();
   const history = useHistory();
   useEffect(() => {
     // check Login 
@@ -104,6 +105,11 @@ const App: React.FC = () => {
       );
       const token = response.data;
       setDataToken(token);
+      dispatch({
+        type: 'TokenUser',
+        payload: token
+      })
+
     } catch (error) {
       alert("Đăng nhập thất bại:");
       history.push("/");

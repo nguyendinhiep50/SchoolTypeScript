@@ -4,7 +4,6 @@ import LayoutComponentManahement from "./Pages/Management/LayOutManagement";
 import LayoutComponentStudent from "./Pages/Student/LayOutStudent";
 import LayoutComponentTeacher from "./Pages/Teacher/LayOutTeacher";
 import LogOut from "./Components/LogOut";
-import NotFound from "./Components/NotFound";
 import Login from "./Components/LoginAccount";
 import ForgotPasswordAccoun from "./Components/ForgotPasswordAccoun";
 import RegisterAccount from "./Components/RegisterAccount";

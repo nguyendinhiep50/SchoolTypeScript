@@ -1,9 +1,9 @@
 import React, { useEffect, useState, ReactNode } from 'react';
-import { Form, Table, Typography, Select } from 'antd';
+import { Form, Table, Typography, Select, message, Space } from 'antd';
 import { BrowserRouter as Router, Route, Link } from 'react-router-dom';
 import { Register, SubjectRegister, SubjectNoRegister, SubjectRegisterAll, } from '../../../services/APISubject';
 import { Item, EditableCell } from '../../../InterFace/ISubject'
-import axios, { Axios, AxiosResponse } from 'axios';
+import { AxiosResponse } from 'axios';
 const App: React.FC = () => {
     const [form] = Form.useForm();
     const [dataSubject, setdataSubject] = useState<Item[]>([]);
@@ -51,10 +51,10 @@ const App: React.FC = () => {
     const RegisterSubject = async (id: string) => {
         const response = await Register(id);
         if (typeof response === 'undefined') {
-            alert("Đăng kí thất bại");
+            message.error(' Erro Resgister');
         } else {
             setdataUpdate({ Item: {} as Item });
-            alert("Đăng kí thành công");
+            message.success('Sucess Resgister');
         }
 
     };
