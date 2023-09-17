@@ -16,18 +16,24 @@ const App: React.FC = () => {
     const [dataUpdate, setdataUpdate] = React.useState({ Item: {} as Item })
     useEffect(() => {
         const fetchData = async () => {
-            const dataFromApi = await GetDatabase(`SubjectGrades/GetSubjectGradesStudentSubject?IdStudent=`, accessToken ? accessToken : "Null");
-            const SubjectGradesData = dataFromApi?.map((SubjectGrades: any, index: number) => ({
-                subjectGradesId: SubjectGrades.subjectGradesId,
-                studentName: SubjectGrades.studentName,
-                subjectName: SubjectGrades.subjectName,
-                gpaRank1: SubjectGrades.gpaRank1,
-                gpaRank2: SubjectGrades.gpaRank2,
-                gpaRank3: SubjectGrades.gpaRank3,
-                gpaRank4: SubjectGrades.gpaRank4,
-                passSubject: SubjectGrades.passSubject,
-            }));
-            setDataSubjectGrades(SubjectGradesData);
+            const dataFromApi = await GetDatabase(`SubjectGrades/GetSubjectGradesStudentSubject?IdStudent=${dataColumns}`, accessToken ? accessToken : "Null");
+            if (typeof dataFromApi === 'undefined') {
+                console.log('studentList is of type void');
+            } else {
+                const SubjectGradesData = dataFromApi.data.map((SubjectGrades: any, index: number) => ({
+                    subjectGradesId: SubjectGrades.subjectGradesId,
+                    studentName: SubjectGrades.studentName,
+                    subjectName: SubjectGrades.subjectName,
+                    gpaRank1: SubjectGrades.gpaRank1,
+                    gpaRank2: SubjectGrades.gpaRank2,
+                    gpaRank3: SubjectGrades.gpaRank3,
+                    gpaRank4: SubjectGrades.gpaRank4,
+                    passSubject: SubjectGrades.passSubject,
+                }));
+                setDataSubjectGrades(SubjectGradesData);
+
+            }
+
         }
         fetchData();
         console.log("render lại nè");
