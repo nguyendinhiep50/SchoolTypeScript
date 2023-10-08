@@ -60,16 +60,6 @@ const App: React.FC = () => {
     fetchData();
     // form.setFieldsValue({ key: 'new' });
   }, [Pageschange]);
-  const DeleteID = async (record: Partial<Item> & { nameUser: string }) => {
-    try {
-      const newDataRoleAccount = dataRoleAccount.filter(item => item.nameUser !== record.nameUser);
-      setdataRoleAccount(newDataRoleAccount);
-
-      console.log('Role account deleted successfully');
-    } catch (error) {
-      console.error('Error deleting role account:', error);
-    }
-  };
   const isEditing = (record: Item) => record.nameUser === dataUpdate?.nameUser;
 
   const edit = (record: Partial<Item>) => {
@@ -266,13 +256,7 @@ const App: React.FC = () => {
             <Typography.Link disabled={dataUpdate?.nameUser == ''} onClick={() => edit(record)}>
               Edit
             </Typography.Link>
-            <Typography.Link
-              disabled={dataUpdate?.nameUser == ''}
-              style={{ marginLeft: '20px' }}
-              onClick={() => DeleteID(record)}
-            >
-              Delete
-            </Typography.Link>
+
           </>
         );
       },
@@ -295,9 +279,6 @@ const App: React.FC = () => {
 
   return (
     <>
-      <Link to="/Management/RoleAccountAdd">
-        <Button type="primary" style={{ width: "120px", marginBottom: "20px" }}>Add RoleAccount</Button>
-      </Link>
       <Form form={form} component={false}>
         <Table
           components={{

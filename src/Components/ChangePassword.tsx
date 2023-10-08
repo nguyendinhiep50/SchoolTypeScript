@@ -8,9 +8,9 @@ const App: React.FC = () => {
     console.log('Received values of form: ', values);
   };
   const [DataPost, setDataPost] = useState({
-    loginName: "",
-    passWord: "",
-    passWordNew: ""
+    accountName: "",
+    accountPassword: "",
+    accountPasswordNew: ""
   });
   // const [newPassword, setnewPassword] = useState('');
   // const handleChangePass = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -39,7 +39,7 @@ const App: React.FC = () => {
       const LoginName = event.target.value;
       setDataPost((prevData) => ({
         ...prevData,
-        loginName: LoginName,
+        accountName: LoginName,
       }));
     }
   };
@@ -49,7 +49,7 @@ const App: React.FC = () => {
       const LoginPassWord = event.target.value;
       setDataPost((prevData) => ({
         ...prevData,
-        passWord: LoginPassWord,
+        accountPassword: LoginPassWord,
       }));
     }
   };
@@ -59,7 +59,7 @@ const App: React.FC = () => {
       const NewPassWord = event.target.value;
       setDataPost((prevData) => ({
         ...prevData,
-        passWordNew: NewPassWord,
+        accountPasswordNew: NewPassWord,
       }));
     }
   };

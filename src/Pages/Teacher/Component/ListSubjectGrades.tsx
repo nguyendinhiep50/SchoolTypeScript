@@ -192,9 +192,7 @@ const App: React.FC<ChildProps> = (props: any) => {
     });
     return (
         <>
-            <Link to="/Management/SubjectGradesAdd">
-                <Button type="primary" style={{ width: "120px", marginBottom: "20px" }}>Add SubjectGrades</Button>
-            </Link>
+
             <Form form={form} component={false} style={{ width: "86%" }}>
                 <Table<Item>
                     components={{

@@ -16,7 +16,7 @@ const App: React.FC = () => {
     const [dataUpdate, setdataUpdate] = React.useState({ Item: {} as Item })
     useEffect(() => {
         const fetchData = async () => {
-            const dataFromApi = await GetDatabase(`SubjectGrades/GetSubjectGradesStudentSubject?IdStudent=${dataColumns}`, accessToken ? accessToken : "Null");
+            const dataFromApi = await GetDatabase(`SubjectGrades/GetSubjectGradesStudentSubject`, accessToken ? accessToken : "Null");
             if (typeof dataFromApi === 'undefined') {
                 console.log('studentList is of type void');
             } else {

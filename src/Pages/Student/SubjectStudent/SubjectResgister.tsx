@@ -89,9 +89,7 @@ const App: React.FC = () => {
                 }
                 else if (Selector === "Register") {
                     return (
-                        <Typography.Link onClick={() => RegisterSubject(record.subjectId)} style={{ marginRight: 8 }}>
-                            Cancel Register
-                        </Typography.Link>
+                        null
                     );
                 }
                 else if (Selector === "NoRegister") {

@@ -137,11 +137,11 @@ const FormDisabledDemo: React.FC = () => {
             <Form.Item name="EmailStudent" label="Email">
               <Input onBlur={handleStudentEmailChange} placeholder={"Email học sinh"} />
             </Form.Item>
-            <Form.Item name="NameStudent" label="Ten Dang Nhap">
+            <Form.Item name="NameLogin" label="Ten Dang Nhap">
               <Input onBlur={handleStudentNameLogin} placeholder={"Họ và tên học sinh"} />
             </Form.Item>
-            <Form.Item name="EmailStudent" label="Số điện thoại">
-              <Input onBlur={handleStudentPhoneNumber} placeholder={"Email học sinh"} />
+            <Form.Item name="NumberStudent" label="Số điện thoại">
+              <Input onBlur={handleStudentPhoneNumber} placeholder={"NumberPhone học sinh"} />
             </Form.Item>
             <Form.Item name="BirthDateStudent" label="Ngày sinh">
               <DatePicker onBlur={handleStudentBirthDateChange} defaultValue={dayjs("2000-01-01", "YYYY-MM-DD")} />

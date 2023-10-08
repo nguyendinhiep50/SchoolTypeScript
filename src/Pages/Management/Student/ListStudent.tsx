@@ -1,5 +1,5 @@
 import React, { useEffect, useState, ReactNode } from 'react';
-import { Form, Button, Table, Typography, Popconfirm, Select, Pagination } from 'antd';
+import { Form, Button, Table, Typography, Popconfirm, Select, Pagination, message } from 'antd';
 import { BrowserRouter as Router, Route, Link } from 'react-router-dom';
 import { format } from 'date-fns';
 // import Item from 'antd/es/list/Item';
@@ -18,6 +18,8 @@ const App: React.FC<ChildProps> = (props) => {
   const { DataFilter, FilterString } = props.FilterString;
   const [dataStudent, setDataStudent] = useState<Item[]>([]);
   const [dataUpdate, setdataUpdate] = React.useState({ Item: {} as Item })
+  const [bienchange, setbienchange] = useState<boolean>(true);
+
   useEffect(() => {
     const fetchDataCount = async () => {
       try {
@@ -53,8 +55,7 @@ const App: React.FC<ChildProps> = (props) => {
       }
     };
     fetchData();
-    console.log("render lại nè");
-  }, [dataUpdate, DataFilter, Pageschange]);
+  }, [dataUpdate, DataFilter, Pageschange, bienchange]);
   const isEditing = (record: Item) => record.studentId === editingid;
 
   const edit = (record: Partial<Item> & { studentId: string }) => {
@@ -69,13 +70,18 @@ const App: React.FC<ChildProps> = (props) => {
     }));
   };
   const DeleteID = (record: Partial<Item> & { studentId: string }) => {
-    const bienxoa = DeleteStudent(record.studentId);
-    if (typeof bienxoa === 'undefined') {
-      console.log('studentList is of type void');
-    } else {
-      const newDataStudent = dataStudent.filter(item => item.studentId !== record.studentId);
-      handleDataChange(newDataStudent);
+    if (window.confirm('Bạn có chắc chắn muốn xóa không?')) {
+      const bienxoa = DeleteStudent(record.studentId);
+      if (typeof bienxoa === 'undefined') {
+        console.log('studentList is of type void');
+      } else {
+        const newDataStudent = dataStudent.filter(item => item.studentId !== record.studentId);
+        handleDataChange(newDataStudent);
+        message.success("Xóa thành công");
+        setbienchange(!bienchange);
+      }
     }
+
   };
   const cancel = () => {
     setEditingid('');
@@ -109,6 +115,7 @@ const App: React.FC<ChildProps> = (props) => {
       setEditingid('');
       console.log('Validate Failed:', errInfo);
     }
+    setbienchange(!bienchange);
   };
   const handleSelectChange = (newFacultyId: string) => {
     setDataEditKhoaId(newFacultyId);
