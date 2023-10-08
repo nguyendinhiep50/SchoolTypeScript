@@ -1,6 +1,5 @@
 import React, { useEffect, useState, ReactNode } from 'react';
 import { Form, Button, Table, Typography, Popconfirm, Select, Pagination } from 'antd';
-import axios from 'axios';
 import { BrowserRouter as Router, Route, Link } from 'react-router-dom';
 import { format } from 'date-fns';
 // import Item from 'antd/es/list/Item';

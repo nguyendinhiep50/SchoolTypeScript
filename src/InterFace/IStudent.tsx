@@ -9,7 +9,6 @@ export interface Item {
     studentBirthDate: Date;
     facultyName: string;
     facultyId: string;
-
 }
 export interface Faculty {
     facultyId: string;

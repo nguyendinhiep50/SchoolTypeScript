@@ -13,7 +13,7 @@ import AddClass from "./Class/AddClass";
 import AddListStudentClass from "./Add/AddListStudentClass";
 import AddRole from "./Role/AddRole";
 import AddAcademicProgram from "./AcademicProgram/AddAcademicProgram";
-
+import AddExcel from "./Student/AddExcel";
 
 import ListStudent from "./LayOutListStudent";
 import ListTeacher from "./Teacher/ListTeacher";
@@ -46,6 +46,7 @@ function App() {
                 <Route path="/Management/ClassLearnAdd" exact={false} component={AddListStudentClass} />
                 <Route path="/Management/AddRole" exact={false} component={AddRole} />
                 <Route path="/Management/AddAcademicProgram" exact={false} component={AddAcademicProgram} />
+                <Route path="/Management/AddExcel" exact={false} component={AddExcel} />
 
 
                 <Route path="/Management/StudentList" exact={false} component={ListStudent} />

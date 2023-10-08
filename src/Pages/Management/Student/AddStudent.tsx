@@ -21,11 +21,12 @@ const FormDisabledDemo: React.FC = () => {
     // Add other properties if applicable
   }
 
-  const [componentDisabled, setComponentDisabled] = useState<boolean>(false);
   const [dataKH, setDataKH] = useState<Faculty[]>([]);
   const [DataPost, setDataPost] = useState({
     studentName: "",
     studentEmail: "",
+    studentNameLogin: "",
+    studentPhoneNumber: "",
     studentBirthDate: "",
     facultyId: "",
   });
@@ -66,7 +67,19 @@ const FormDisabledDemo: React.FC = () => {
       studentBirthDate: newStudentBirthDate,
     }));
   };
-
+  const handleStudentNameLogin = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const newStudentNameLogin = event.target.value;
+    setDataPost((prevData) => ({
+      ...prevData,
+      studentNameLogin: newStudentNameLogin,
+    }));
+  }; const handleStudentPhoneNumber = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const newStudentPhoneNumbe = event.target.value;
+    setDataPost((prevData) => ({
+      ...prevData,
+      studentPhoneNumber: newStudentPhoneNumbe,
+    }));
+  };
   const handleSelectChange = (newFacultyId: string) => {
     setDataPost((prevData) => ({
       ...prevData,
@@ -90,12 +103,18 @@ const FormDisabledDemo: React.FC = () => {
       })
       .catch((err) => console.log(err));
   };
+  const ChangePageManyPostStudent = async () => {
+    history.push("/Management/AddExcel");
+  };
   const { Content } = Layout;
   const {
     token: { colorBgContainer },
   } = theme.useToken();
   return (
     <>
+      <Button type="primary" block style={{ margin: " 0px 0px 20px 0" }} onClick={ChangePageManyPostStudent}>
+        Add Many Student Excel
+      </Button>
       <Layout >
         <Content
           style={{
@@ -117,6 +136,12 @@ const FormDisabledDemo: React.FC = () => {
             </Form.Item>
             <Form.Item name="EmailStudent" label="Email">
               <Input onBlur={handleStudentEmailChange} placeholder={"Email học sinh"} />
+            </Form.Item>
+            <Form.Item name="NameStudent" label="Ten Dang Nhap">
+              <Input onBlur={handleStudentNameLogin} placeholder={"Họ và tên học sinh"} />
+            </Form.Item>
+            <Form.Item name="EmailStudent" label="Số điện thoại">
+              <Input onBlur={handleStudentPhoneNumber} placeholder={"Email học sinh"} />
             </Form.Item>
             <Form.Item name="BirthDateStudent" label="Ngày sinh">
               <DatePicker onBlur={handleStudentBirthDateChange} defaultValue={dayjs("2000-01-01", "YYYY-MM-DD")} />

@@ -15,7 +15,6 @@ const App: React.FC<ChildProps> = (props: any) => {
         gpaRank3: 0,
         gpaRank4: 0
     };
-    const accessToken = localStorage.getItem("access_tokenAdmin");
     const [form] = Form.useForm();
     const [Pageschange, setPageschange] = useState(1);
     const [Size, setSize] = useState(3);
@@ -25,6 +24,7 @@ const App: React.FC<ChildProps> = (props: any) => {
     const [dataUpdate, setdataUpdate] = React.useState({ Item: {} as Item })
     const { location } = props;
     const dataFromApi = location.state?.data;
+    const [IdClassLearn, setIdClassLearn] = useState(dataFromApi);
     useEffect(() => {
         const fetchData = async () => {
             console.log(dataFromApi);
@@ -39,12 +39,6 @@ const App: React.FC<ChildProps> = (props: any) => {
                 passSubject: SubjectGrades.passSubject,
             }));
             setDataSubjectGrades(SubjectGradesData);
-            //     }
-            //     console.log(dataSubjectGrades);
-            // } catch (error) {
-            //     console.error(error);
-            // }
-            // };
         }
         fetchData();
         console.log("render lại nè");
@@ -74,6 +68,7 @@ const App: React.FC<ChildProps> = (props: any) => {
             SubjectGradesAddDto.gpaRank3 = typeof row?.gpaRank3 === 'string' ? parseFloat(row.gpaRank3) : row?.gpaRank3;
             SubjectGradesAddDto.gpaRank4 = typeof row?.gpaRank4 === 'string' ? parseFloat(row.gpaRank4) : row?.gpaRank4;
 
+
             const newData = [...dataSubjectGrades];
             const index = newData.findIndex((item) => id === item.subjectGradesId);
             row.studentName = dataSubjectGrades[index].studentName
@@ -81,6 +76,7 @@ const App: React.FC<ChildProps> = (props: any) => {
             // id
             if (index > -1) {
                 newData.splice(index, 1, row);
+                console.log(id);
                 const update = await UpDataDatabase("SubjectGrades/UpdateSubjectGradesStudent", SubjectGradesAddDto, accessToken ? accessToken : "nulll");
                 if (typeof update === 'undefined') {
                     setEditingid('');

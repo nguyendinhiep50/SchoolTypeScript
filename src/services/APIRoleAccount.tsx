@@ -32,7 +32,7 @@ export const UpdateRoleAccount = async (params: Item) => {
                 Authorization: `Bearer ${accessToken}`
             }
         }
-    ).then(() => { alert("cạp nhat thanh cong") })
+    ).then(() => { console.log("cạp nhat thanh cong") })
         .catch((err) => {
             console.log(err)
         });

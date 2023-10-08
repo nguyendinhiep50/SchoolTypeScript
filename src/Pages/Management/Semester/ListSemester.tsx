@@ -7,7 +7,6 @@ import { GetListSemesterPage, CountSemesters, DeleteSemester, UpdateSemester } f
 import { PagesAndSize } from '../../../services/types'
 
 const App: React.FC = () => {
-  const accessToken = localStorage.getItem("access_tokenAdmin");
   const [form] = Form.useForm();
   const [Pageschange, setPageschange] = useState(1);
   const [Size, setSize] = useState(3); const [editingid, setEditingid] = useState('');

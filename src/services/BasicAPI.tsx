@@ -26,3 +26,11 @@ export const UpDataDatabase = async (StringAPI: string, SubjectGradesAddDto: any
     }).catch((err) => console.log(err));
     return response;
 }
+export const PostDatabase = async (StringAPI: string, SubjectGradesAddDto: any, AccessToken: string) => {
+    const response = await axios.put(`${UrlBasic}${StringAPI}`, SubjectGradesAddDto, {
+        headers: {
+            Authorization: `Bearer ${AccessToken}`
+        }
+    }).catch((err) => console.log(err));
+    return response;
+}
